@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tripster AI · Plan, Book, Compete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #05070f;
+    --bg-2: #0a0e1a;
+    --surface: rgba(255, 255, 255, 0.04);
+    --surface-hi: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.1);
+    --border-hi: rgba(255, 255, 255, 0.18);
+    --text: #f5f7fa;
+    --text-dim: #a0a8c0;
+    --text-mute: #6a7390;
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+    --violet: #8b5cf6;
+    --pink: #ec4899;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --gold: #fbbf24;
+  }
+  html, body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  button, input, textarea { font-family: inherit; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ── Aurora background ── */
+  .aurora {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(59, 130, 246, 0.15), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 20%, rgba(139, 92, 246, 0.13), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 50% 100%, rgba(236, 72, 153, 0.08), transparent 65%);
+    animation: auroraMove 20s ease-in-out infinite alternate;
+  }
+  @keyframes auroraMove {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-5%, 3%) scale(1.1); }
+  }
+
+  /* Noise overlay */
+  .noise {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence baseFrequency='.9' numOctaves='3'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  main { position: relative; z-index: 2; }
+
+  /* ── Navbar ── */
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 32px;
+    max-width: 1280px; margin: 0 auto;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 18px;
+    letter-spacing: -0.02em;
+  }
+  .logo-mark {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--blue), var(--violet) 60%, var(--pink));
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 28px;
+    font-size: 14px; color: var(--text-dim);
+  }
+  .nav-links a { cursor: pointer; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-ghost {
+    padding: 8px 16px; border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 13px; cursor: pointer; color: var(--text);
+    transition: all .2s;
+  }
+  .btn-ghost:hover { background: var(--surface-hi); border-color: var(--border-hi); }
+
+  /* ── Hero ── */
+  .hero {
+    max-width: 880px; margin: 0 auto;
+    padding: 60px 24px 80px;
+    text-align: center;
+  }
+  .badge-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 12px; color: var(--text-dim);
+    margin-bottom: 32px;
+  }
+  .badge-pill .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  h1.hero-title {
+    font-size: clamp(42px, 7vw, 76px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 20px;
+  }
+  .hero-title .gradient {
+    background: linear-gradient(110deg, #60a5fa 0%, #a78bfa 40%, #f472b6 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--text-dim);
+    max-width: 640px;
+    margin: 0 auto 44px;
+    line-height: 1.55;
+  }
+
+  /* ── Chat composer ── */
+  .composer-wrap {
+    position: relative;
+    max-width: 760px; margin: 0 auto;
+  }
+  .composer-glow {
+    position: absolute; inset: -2px; border-radius: 20px;
+    background: linear-gradient(135deg, var(--blue), var(--violet), var(--pink));
+    filter: blur(24px); opacity: 0.35;
+    z-index: -1;
+    animation: glow 4s ease-in-out infinite alternate;
+  }
+  @keyframes glow { 0% { opacity: .25; } 100% { opacity: .5; } }
+
+  .composer {
+    background: rgba(10, 14, 26, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-hi);
+    border-radius: 18px;
+    padding: 6px;
+    display: flex; flex-direction: column;
+  }
+  .composer textarea {
+    width: 100%; min-height: 72px; max-height: 200px;
+    padding: 14px 16px;
+    background: transparent; border: none; outline: none;
+    font-size: 16px; color: var(--text); resize: none;
+    font-family: inherit;
+  }
+  .composer textarea::placeholder { color: var(--text-mute); }
+  .composer-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+  }
+  .tool-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-dim); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s; font-size: 16px;
+  }
+  .tool-btn:hover {
+    color: var(--text); border-color: var(--border-hi);
+    background: var(--surface);
+  }
+  .tool-btn.mic.listening {
+    background: var(--pink); color: white;
+    border-color: var(--pink);
+    animation: micpulse 1.2s infinite;
+  }
+  @keyframes micpulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(236, 72, 153, 0); }
+  }
+  .send-btn {
+    margin-left: auto;
+    padding: 8px 18px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue), var(--violet));
+    color: white; border: none; cursor: pointer;
+    font-weight: 600; font-size: 14px;
+    display: flex; align-items: center; gap: 6px;
+    transition: all .2s;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  }
+  .send-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(139, 92, 246, 0.4); }
+  .send-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  /* ── Suggestion chips ── */
+  .suggestions {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    margin-top: 24px;
+  }
+  .chip {
+    padding: 10px 16px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 13px; color: var(--text-dim); cursor: pointer;
+    transition: all .15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chip:hover {
+    background: var(--surface-hi); border-color: var(--border-hi);
+    color: var(--text); transform: translateY(-1px);
+  }
+  .chip-emoji { font-size: 16px; }
+
+  /* ── Trust row ── */
+  .trust {
+    margin-top: 56px;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 24px 40px;
+    color: var(--text-mute); font-size: 13px;
+  }
+  .trust-item { display: flex; align-items: center; gap: 8px; }
+  .trust-item .ico { font-size: 16px; opacity: .9; }
+
+  /* ── AI thinking / results section ── */
+  .plan-section {
+    max-width: 1120px; margin: 0 auto;
+    padding: 40px 24px 80px;
+    display: none;
+  }
+  .plan-section.active { display: block; animation: slideUp .6s ease; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+  .thinking-card {
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px;
+    margin-bottom: 24px;
+  }
+  .thinking-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 18px;
+  }
+  .ai-avatar {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue), var(--violet));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  }
+  .thinking-head .t1 { font-weight: 700; font-size: 15px; }
+  .thinking-head .t2 { font-size: 12px; color: var(--text-mute); }
+
+  .step {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; border-radius: 10px;
+    font-size: 14px; color: var(--text-dim);
+    margin-bottom: 6px;
+    background: transparent; transition: all .3s;
+  }
+  .step .dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--surface-hi); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+  }
+  .step.done { color: var(--green); }
+  .step.done .dot { background: var(--green); border-color: var(--green); color: var(--bg); }
+  .step.active { color: var(--blue); background: rgba(59, 130, 246, 0.08); }
+  .step.active .dot {
+    background: var(--blue); border-color: var(--blue); color: white;
+    animation: dotPulse 1s infinite;
+  }
+  @keyframes dotPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+  .step .tool-tag {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-mute);
+    padding: 2px 8px; border-radius: 4px;
+    background: var(--surface-hi);
+  }
+
+  /* ── Itinerary grid ── */
+  .result-grid {
+    display: grid; grid-template-columns: 1fr 380px; gap: 24px;
+    align-items: start;
+  }
+  .itinerary-col { display: flex; flex-direction: column; gap: 16px; }
+
+  .card {
+    background: var(--surface);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px;
+    transition: all .2s;
+  }
+  .card:hover { border-color: var(--border-hi); }
+  .card-h {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .card-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--surface-hi);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .card-icon.blue { background: linear-gradient(135deg, rgba(59,130,246,.25), rgba(6,182,212,.25)); border: 1px solid rgba(59,130,246,.4); }
+  .card-icon.purple { background: linear-gradient(135deg, rgba(139,92,246,.25), rgba(236,72,153,.25)); border: 1px solid rgba(139,92,246,.4); }
+  .card-icon.green { background: linear-gradient(135deg, rgba(16,185,129,.25), rgba(6,182,212,.25)); border: 1px solid rgba(16,185,129,.4); }
+  .card-icon.amber { background: linear-gradient(135deg, rgba(245,158,11,.25), rgba(236,72,153,.25)); border: 1px solid rgba(245,158,11,.4); }
+
+  .card-title { font-weight: 700; font-size: 15px; }
+  .card-sub { font-size: 12px; color: var(--text-mute); }
+  .card-cost {
+    margin-left: auto; font-weight: 700; font-size: 15px;
+    color: var(--green);
+  }
+
+  .activity {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; margin-bottom: 6px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .activity:hover { background: var(--surface-hi); }
+  .activity input { accent-color: var(--blue); width: 14px; height: 14px; }
+  .activity .label { flex: 1; }
+  .activity .rating { color: var(--amber); font-size: 11px; }
+  .activity .cost { color: var(--green); font-weight: 600; min-width: 60px; text-align: right; }
+  .activity.off { opacity: .4; text-decoration: line-through; }
+
+  /* ── Basket (right side) ── */
+  .basket {
+    position: sticky; top: 20px;
+    background: linear-gradient(180deg, rgba(59,130,246,.06), rgba(139,92,246,.06));
+    border: 1px solid var(--border-hi);
+    border-radius: 18px; padding: 20px;
+  }
+  .basket-head {
+    font-weight: 800; font-size: 16px;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px;
+  }
+  .basket-count {
+    margin-left: auto;
+    background: var(--blue); color: white;
+    padding: 2px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 700;
+  }
+  .basket-sub { font-size: 12px; color: var(--text-mute); margin-bottom: 16px; }
+
+  .basket-group {
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+  }
+  .basket-group:first-of-type { border-top: none; padding-top: 0; }
+  .bg-head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; margin-bottom: 6px;
+  }
+  .bg-amount { margin-left: auto; color: var(--green); font-weight: 700; }
+  .bg-amount.save { color: var(--amber); }
+  .bg-partner {
+    font-size: 11px; color: var(--text-mute);
+    margin-bottom: 8px;
+  }
+  .partner-cta {
+    width: 100%; padding: 8px; border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 12px; color: var(--text); cursor: pointer;
+    transition: all .15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .partner-cta:hover {
+    background: var(--blue); color: white; border-color: var(--blue);
+  }
+  .partner-cta .xp { font-size: 10px; color: var(--gold); }
+  .partner-cta:hover .xp { color: var(--amber); }
+
+  .basket-total {
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid var(--border-hi);
+  }
+  .bt-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: var(--text-dim); }
+  .bt-row.grand {
+    font-size: 22px; font-weight: 800; color: var(--text);
+    margin-top: 10px;
+  }
+  .book-cta {
+    width: 100%; padding: 14px; margin-top: 14px;
+    background: linear-gradient(135deg, var(--green), var(--cyan));
+    color: var(--bg); border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 800; cursor: pointer;
+    transition: all .2s;
+    box-shadow: 0 4px 24px rgba(16, 185, 129, 0.3);
+  }
+  .book-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(16, 185, 129, 0.45); }
+  .xp-hint {
+    text-align: center; margin-top: 8px;
+    font-size: 11px; color: var(--text-mute);
+  }
+  .xp-hint strong { color: var(--gold); }
+
+  /* ── Invite / Social section ── */
+  .invite-section {
+    max-width: 1120px; margin: 40px auto 0;
+    padding: 0 24px 80px;
+    display: none;
+  }
+  .invite-section.active { display: block; animation: slideUp .6s ease; }
+
+  .invite-hero {
+    background:
+      radial-gradient(ellipse at top left, rgba(236, 72, 153, 0.15), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(59, 130, 246, 0.15), transparent 60%),
+      var(--surface);
+    border: 1px solid var(--border-hi);
+    border-radius: 24px; padding: 40px;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .invite-hero h2 {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 800; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .invite-hero h2 .grad {
+    background: linear-gradient(90deg, var(--pink), var(--violet), var(--blue));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .invite-hero p {
+    color: var(--text-dim); max-width: 560px; margin: 0 auto 24px;
+  }
+  .invite-box {
+    display: flex; gap: 8px; max-width: 520px; margin: 0 auto;
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 4px;
+  }
+  .invite-box input {
+    flex: 1; background: none; border: none; padding: 12px 14px;
+    color: var(--text); font-size: 13px; outline: none;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .invite-box button {
+    padding: 10px 18px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--pink), var(--violet));
+    color: white; border: none; cursor: pointer;
+    font-weight: 700; font-size: 13px;
+    transition: all .15s;
+  }
+  .invite-box button:hover { transform: translateY(-1px); }
+
+  .share-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px; max-width: 640px; margin: 24px auto 0;
+  }
+  .share-btn {
+    padding: 14px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600;
+    transition: all .15s;
+  }
+  .share-btn:hover { border-color: var(--border-hi); background: var(--surface-hi); transform: translateY(-2px); }
+  .share-btn .ico { font-size: 24px; }
+  .share-btn.wa:hover { border-color: #25d366; }
+  .share-btn.ig:hover { border-color: #e6683c; }
+  .share-btn.tw:hover { border-color: #1d9bf0; }
+
+  /* ── Friends preview ── */
+  .friends-preview {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  }
+  .friends-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px;
+  }
+  .friends-card h3 {
+    font-size: 16px; font-weight: 700; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .friend-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .friend-row:last-child { border-bottom: none; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: var(--bg);
+    flex-shrink: 0;
+  }
+  .f-info { flex: 1; min-width: 0; }
+  .f-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+  .f-meta { font-size: 12px; color: var(--text-mute); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-mute); }
+  .status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .status-dot.trip { background: var(--amber); animation: pulse 1.5s infinite; }
+  .f-action {
+    padding: 6px 12px; border-radius: 8px;
+    background: var(--blue); color: white; border: none;
+    cursor: pointer; font-size: 12px; font-weight: 600;
+  }
+  .vs-bar {
+    margin-top: 12px; height: 8px; border-radius: 4px;
+    background: var(--surface-hi); overflow: hidden;
+    display: flex;
+  }
+  .vs-bar .me { background: linear-gradient(90deg, var(--blue), var(--violet)); }
+  .vs-bar .them { background: linear-gradient(90deg, var(--pink), var(--amber)); margin-left: auto; }
+  .vs-labels {
+    display: flex; justify-content: space-between; margin-top: 6px;
+    font-size: 11px; color: var(--text-mute);
+  }
+
+  /* ── Voice status floater ── */
+  .voice-float {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: rgba(236, 72, 153, 0.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--pink);
+    padding: 10px 18px; border-radius: 999px;
+    font-size: 13px; z-index: 200;
+    display: none; align-items: center; gap: 10px;
+  }
+  .voice-float.show { display: flex; animation: slideUp .25s; }
+  .wave { display: flex; gap: 2px; align-items: center; }
+  .wave span {
+    width: 3px; height: 14px; background: var(--pink); border-radius: 2px;
+    animation: wv 1s infinite ease-in-out;
+  }
+  .wave span:nth-child(2) { animation-delay: .1s; }
+  .wave span:nth-child(3) { animation-delay: .2s; }
+  .wave span:nth-child(4) { animation-delay: .3s; }
+  @keyframes wv { 0%, 100% { height: 4px; } 50% { height: 18px; } }
+
+  /* ── Budget ring ── */
+  .budget-ring {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 12px;
+    background: var(--surface-hi); border: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+  .ring-label { flex: 1; }
+  .ring-label .l1 { font-size: 12px; color: var(--text-mute); }
+  .ring-label .l2 { font-size: 18px; font-weight: 800; }
+  .ring {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: conic-gradient(var(--green) 0% 95%, var(--surface-hi) 95% 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ring::after {
+    content: '95%';
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--bg-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .result-grid { grid-template-columns: 1fr; }
+    .basket { position: relative; top: 0; }
+    .friends-preview { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+
+  .ghost-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 700;
+    background: var(--surface-hi); color: var(--text-dim);
+    margin-left: 6px;
+  }
+  .ghost-tag.book { background: rgba(16,185,129,.2); color: var(--green); }
+  .ghost-tag.deal { background: rgba(245,158,11,.2); color: var(--amber); }
+
+  /* ═══════════════════════════════════════ */
+  /* FEATURE SECTIONS                        */
+  /* ═══════════════════════════════════════ */
+  .features {
+    max-width: 1160px; margin: 0 auto;
+    padding: 60px 24px;
+  }
+  .section-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 12px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--text-dim); text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: clamp(30px, 4.5vw, 48px);
+    font-weight: 800; letter-spacing: -0.025em;
+    line-height: 1.1; margin-bottom: 14px;
+  }
+  .section-title .grad {
+    background: linear-gradient(110deg, #60a5fa, #a78bfa 50%, #f472b6);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .section-sub {
+    font-size: 16px; color: var(--text-dim);
+    max-width: 620px; margin-bottom: 44px;
+    line-height: 1.6;
+  }
+  .section-center { text-align: center; }
+  .section-center .section-sub { margin-left: auto; margin-right: auto; }
+
+  /* Compete / Plan together dual layout */
+  .dual-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  .feature-card {
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 28px;
+    position: relative; overflow: hidden;
+    transition: all .3s;
+  }
+  .feature-card:hover { border-color: var(--border-hi); transform: translateY(-4px); }
+  .feature-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at top right, rgba(139,92,246,.15), transparent 50%);
+    pointer-events: none;
+  }
+  .feature-card.pink::before {
+    background: radial-gradient(circle at top right, rgba(236,72,153,.15), transparent 50%);
+  }
+  .feature-card.green::before {
+    background: radial-gradient(circle at top right, rgba(16,185,129,.15), transparent 50%);
+  }
+  .feat-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin-bottom: 18px;
+    background: var(--surface-hi); border: 1px solid var(--border);
+    position: relative; z-index: 1;
+  }
+  .feat-title {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+    margin-bottom: 8px; position: relative; z-index: 1;
+  }
+  .feat-desc {
+    color: var(--text-dim); font-size: 14px; line-height: 1.6;
+    margin-bottom: 20px; position: relative; z-index: 1;
+  }
+  .feat-list {
+    list-style: none; position: relative; z-index: 1;
+  }
+  .feat-list li {
+    display: flex; gap: 10px; padding: 8px 0;
+    font-size: 13px; color: var(--text);
+  }
+  .feat-list li .check {
+    color: var(--green); flex-shrink: 0; font-weight: 800;
+  }
+
+  /* Co-plan illustration */
+  .coplan-viz {
+    margin-top: 20px; padding: 16px;
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative; z-index: 1;
+  }
+  .coplan-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 8px;
+    background: var(--surface); margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .coplan-row:last-child { margin-bottom: 0; }
+  .mini-avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: var(--bg);
+    flex-shrink: 0;
+  }
+  .coplan-row .action { margin-left: auto; font-size: 11px; color: var(--text-mute); }
+  .coplan-row.me { border: 1px solid var(--blue); }
+  .type-indicator {
+    display: inline-flex; gap: 3px; padding: 4px 8px;
+    background: var(--surface-hi); border-radius: 999px;
+    font-size: 10px; color: var(--text-dim);
+    margin-left: auto;
+  }
+  .type-indicator span {
+    width: 4px; height: 4px; border-radius: 50%; background: var(--text-mute);
+    animation: type 1.4s infinite;
+  }
+  .type-indicator span:nth-child(2) { animation-delay: .2s; }
+  .type-indicator span:nth-child(3) { animation-delay: .4s; }
+  @keyframes type { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
+
+  /* Versus preview */
+  .vs-preview {
+    margin-top: 20px; padding: 16px;
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative; z-index: 1;
+  }
+  .vs-player {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px; margin-bottom: 6px; border-radius: 8px;
+    background: var(--surface);
+    font-size: 13px;
+  }
+  .vs-player .bar {
+    flex: 1; height: 6px; border-radius: 3px;
+    background: var(--surface-hi); overflow: hidden;
+  }
+  .vs-player .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--violet));
+  }
+  .vs-player.opp .bar-fill {
+    background: linear-gradient(90deg, var(--pink), var(--amber));
+  }
+  .vs-player .xp { font-size: 11px; color: var(--gold); font-weight: 700; }
+
+  /* Partner connect cards */
+  .partners-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .partner-card {
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px;
+    position: relative; overflow: hidden;
+    transition: all .25s;
+  }
+  .partner-card:hover { border-color: var(--border-hi); transform: translateY(-3px); }
+  .partner-head {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .partner-logo {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; flex-shrink: 0;
+  }
+  .partner-logo.mmt { background: linear-gradient(135deg, #eb2226, #f05423); color: white; }
+  .partner-logo.booking { background: #003580; color: white; }
+  .partner-logo.zomato { background: linear-gradient(135deg, #cb202d, #e23744); color: white; }
+  .partner-logo.gyg { background: linear-gradient(135deg, #ff6b00, #ff9500); color: white; }
+  .partner-logo.eazy { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+  .partner-logo.oyo { background: #e1241a; color: white; }
+  .partner-name { font-weight: 700; font-size: 15px; }
+  .partner-save {
+    font-size: 11px; color: var(--green); font-weight: 600;
+    padding: 2px 8px; border-radius: 4px;
+    background: rgba(16,185,129,.15); margin-top: 2px;
+    display: inline-block;
+  }
+  .partner-desc {
+    font-size: 13px; color: var(--text-dim);
+    line-height: 1.5; margin-bottom: 14px;
+  }
+  .link-btn {
+    width: 100%; padding: 10px; border-radius: 10px;
+    background: var(--surface-hi); border: 1px solid var(--border);
+    color: var(--text); font-size: 13px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all .2s;
+  }
+  .link-btn:hover { background: var(--blue); color: white; border-color: var(--blue); }
+  .link-btn.linked { background: var(--green); color: var(--bg); border-color: var(--green); }
+  .link-btn.linked:hover { background: var(--green); }
+
+  .partner-note {
+    margin-top: 28px; padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(16,185,129,.1), rgba(59,130,246,.1));
+    border: 1px dashed var(--border-hi);
+    border-radius: 12px;
+    font-size: 13px; color: var(--text-dim);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .partner-note .ico { font-size: 22px; }
+
+  /* Social import */
+  .social-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .social-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+    text-align: center;
+    transition: all .2s;
+    cursor: pointer;
+  }
+  .social-card:hover { transform: translateY(-3px); border-color: var(--border-hi); }
+  .social-ico {
+    width: 48px; height: 48px; border-radius: 12px;
+    margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800; color: white;
+  }
+  .social-ico.google { background: #ea4335; }
+  .social-ico.contacts { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+  .social-ico.whatsapp { background: #25d366; }
+  .social-ico.instagram { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+  .social-ico.facebook { background: #1877f2; }
+  .social-ico.twitter { background: #000; }
+  .social-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .social-meta { font-size: 11px; color: var(--text-mute); margin-bottom: 12px; line-height: 1.4; }
+  .social-cta {
+    padding: 6px 14px; border-radius: 8px;
+    background: var(--surface-hi); border: 1px solid var(--border);
+    color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .social-cta.soon { opacity: .5; cursor: not-allowed; }
+  .social-cta.share { background: var(--pink); color: white; border-color: var(--pink); }
+
+  .privacy-note {
+    margin-top: 24px; padding: 14px 18px;
+    background: var(--surface); border: 1px dashed var(--border);
+    border-radius: 10px;
+    font-size: 12px; color: var(--text-mute);
+    line-height: 1.5;
+  }
+  .privacy-note strong { color: var(--text-dim); }
+
+  @media (max-width: 800px) {
+    .dual-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+<div class="noise"></div>
+
+<main>
+  <!-- Navbar -->
+  <nav class="nav">
+    <div class="logo">
+      <div class="logo-mark">✦</div>
+      <span>Tripster</span>
+      <span class="ghost-tag">DEMO</span>
+    </div>
+    <div class="nav-links">
+      <a onclick="scrollTo({top:0, behavior:'smooth'})">Home</a>
+      <a>Pricing</a>
+      <a>How it works</a>
+      <button class="btn-ghost">Sign in</button>
+    </div>
+  </nav>
+
+  <!-- ───────────────── HERO (CHAT FIRST) ───────────────── -->
+  <section class="hero">
+    <div class="badge-pill">
+      <span class="dot"></span>
+      Powered by Gemini · YouTube insights · real-time deals
+    </div>
+
+    <h1 class="hero-title">
+      Tell me where. <br>
+      I'll plan the <span class="gradient">perfect trip.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Your AI co-pilot for travel. Cheapest flights, trusted hotels, hidden gems from
+      real travelers — all in one chat. Then book, track, and race your friends.
+    </p>
+
+    <div class="composer-wrap">
+      <div class="composer-glow"></div>
+      <div class="composer">
+        <textarea id="chat-input" placeholder="Ask anything — 'Plan a 5-day Bali trip for 2, ₹50k budget, love beaches'">Plan a 5-day Bali trip for 2 people, ₹50,000 budget, beaches and street food</textarea>
+        <div class="composer-bar">
+          <button class="tool-btn" title="Attach photo / itinerary"></button>
+          <button class="tool-btn mic" id="mic-btn" onclick="toggleMic()" title="Voice input (Ctrl+Space)">🎤</button>
+          <button class="tool-btn" title="Voice replies" onclick="this.classList.toggle('listening'); ttsEnabled = this.classList.contains('listening');">🔊</button>
+          <span style="margin-left:10px; font-size:11px; color:var(--text-mute); font-family:'JetBrains Mono',monospace;">gemini-2.5-flash</span>
+          <button class="send-btn" id="send-btn" onclick="startPlan()">
+            <span>Plan my trip</span><span>→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggestion chips -->
+    <div class="suggestions">
+      <div class="chip" onclick="fillPrompt('5-day Bali trip, 2 people, ₹50k, beaches + food')"><span class="chip-emoji">🏝️</span>Bali honeymoon</div>
+      <div class="chip" onclick="fillPrompt('Spiti Valley bike trip, 7 days, ₹25k budget')"><span class="chip-emoji">🏔️</span>Spiti road trip</div>
+      <div class="chip" onclick="fillPrompt('3-day Agra heritage tour, ₹15k, photography')"><span class="chip-emoji">🕌</span>Agra heritage</div>
+      <div class="chip" onclick="fillPrompt('Weekend in Goa, ₹12k, best beaches and nightlife')"><span class="chip-emoji">🍹</span>Goa weekend</div>
+      <div class="chip" onclick="fillPrompt('Bangkok 4 days, ₹30k, street food and temples')"><span class="chip-emoji">🍜</span>Bangkok food crawl</div>
+      <div class="chip" onclick="fillPrompt('Maldives honeymoon 4 days, ₹2L, romantic luxury')"><span class="chip-emoji">💍</span>Maldives luxury</div>
+    </div>
+
+    <!-- Trust row -->
+    <div class="trust">
+      <div class="trust-item"><span class="ico">✈️</span> Real flight prices via Kiwi + Amadeus</div>
+      <div class="trust-item"><span class="ico">🏨</span> Booking.com + OYO affiliate</div>
+      <div class="trust-item"><span class="ico">📺</span> YouTube-verified reviews</div>
+      <div class="trust-item"><span class="ico">🎟️</span> Zomato + EazyDiner deals</div>
+    </div>
+  </section>
+
+  <!-- ───────────────── FEATURE 1: PLAN TOGETHER + COMPETE ───────────────── -->
+  <section class="features">
+    <div class="section-center">
+      <div class="section-eyebrow"><span>👥</span> Built for crews</div>
+      <h2 class="section-title">Plan together. <span class="grad">Race each other there.</span></h2>
+      <p class="section-sub">Every trip is better shared. Co-edit itineraries live, split costs, then turn the trip into a friendly race — who unlocks more checkpoints wins XP and bragging rights.</p>
+    </div>
+
+    <div class="dual-grid">
+      <!-- Plan together -->
+      <div class="feature-card">
+        <div class="feat-icon">✍️</div>
+        <div class="feat-title">Plan trips together, in real time</div>
+        <p class="feat-desc">Invite your travel crew to co-edit the itinerary. Everyone can add activities, vote on hotels, and lock in the final plan — no more scattered WhatsApp threads.</p>
+        <ul class="feat-list">
+          <li><span class="check">✓</span> Real-time collaborative itinerary (like a travel Google Doc)</li>
+          <li><span class="check">✓</span> Vote up/down on suggestions — majority wins</li>
+          <li><span class="check">✓</span> Split cost automatically per person</li>
+          <li><span class="check">✓</span> Group chat pinned to each day</li>
+        </ul>
+
+        <div class="coplan-viz">
+          <div style="font-size:11px; color:var(--text-mute); margin-bottom:8px; text-transform:uppercase; letter-spacing:.08em; font-weight:600;">Bali Trip · 3 editors live</div>
+          <div class="coplan-row me">
+            <div class="mini-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">A</div>
+            <span>Anish added <strong>Karsa Spa</strong> to Day 2</span>
+            <span class="action">just now</span>
+          </div>
+          <div class="coplan-row">
+            <div class="mini-avatar" style="background:linear-gradient(135deg,#f472b6,#fb923c)">S</div>
+            <span>Sarah voted ❤️ on <strong>Potato Head sunset</strong></span>
+            <span class="action">12s ago</span>
+          </div>
+          <div class="coplan-row">
+            <div class="mini-avatar" style="background:linear-gradient(135deg,#4ade80,#38bdf8)">D</div>
+            <span style="color:var(--text-dim)">Dev is typing</span>
+            <span class="type-indicator"><span></span><span></span><span></span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compete -->
+      <div class="feature-card pink">
+        <div class="feat-icon">⚔️</div>
+        <div class="feat-title">Turn trips into travel battles</div>
+        <p class="feat-desc">Challenge friends to race to every checkpoint. Check in at each stop, unlock XP, climb the leaderboard. Travel becomes a game — without forcing it.</p>
+        <ul class="feat-list">
+          <li><span class="check">✓</span> Check-in at real locations (verified by GPS)</li>
+          <li><span class="check">✓</span> Earn XP, unlock badges, climb levels</li>
+          <li><span class="check">✓</span> Friendly challenges with time limits</li>
+          <li><span class="check">✓</span> Weekly global + friend leaderboards</li>
+        </ul>
+
+        <div class="vs-preview">
+          <div style="font-size:11px; color:var(--text-mute); margin-bottom:8px; text-transform:uppercase; letter-spacing:.08em; font-weight:600;">🕌 Agra Challenge · ends in 3 days</div>
+          <div class="vs-player">
+            <div class="mini-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">A</div>
+            <span style="min-width:40px;">You</span>
+            <div class="bar"><div class="bar-fill" style="width:20%;"></div></div>
+            <span class="xp">50 XP</span>
+          </div>
+          <div class="vs-player opp">
+            <div class="mini-avatar" style="background:linear-gradient(135deg,#f472b6,#fb923c)">S</div>
+            <span style="min-width:40px;">Sarah</span>
+            <div class="bar"><div class="bar-fill" style="width:40%;"></div></div>
+            <span class="xp">120 XP</span>
+          </div>
+          <div style="font-size:11px; color:var(--text-mute); margin-top:8px; padding:6px 8px; background:rgba(236,72,153,.08); border-radius:6px;">
+            📍 Sarah is 2 checkpoints ahead — she's at Agra Fort. Catch up!
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────── FEATURE 2: ONE-CLICK PARTNER LINKING ───────────────── -->
+  <section class="features">
+    <div class="section-center">
+      <div class="section-eyebrow"><span>🔗</span> One-click discounts</div>
+      <h2 class="section-title">Link your accounts. <span class="grad">Get member prices.</span></h2>
+      <p class="section-sub">Connect Booking Genius, MakeMyTrip Black, Zomato Pro, and more with a single click. Tripster uses your member-only prices automatically on every search — no coupon hunting.</p>
+    </div>
+
+    <div class="partners-grid">
+      <!-- MakeMyTrip -->
+      <div class="partner-card">
+        <div class="partner-head">
+          <div class="partner-logo mmt">MMT</div>
+          <div>
+            <div class="partner-name">MakeMyTrip</div>
+            <div class="partner-save">Save up to 18% on flights</div>
+          </div>
+        </div>
+        <p class="partner-desc">Link your MMT Black/Gold to unlock member-only flight fares, free cancellation windows, and 2x MyCash on every booking.</p>
+        <button class="link-btn" onclick="linkPartner(this, 'MakeMyTrip')">🔗 Link MakeMyTrip</button>
+      </div>
+
+      <!-- Booking.com -->
+      <div class="partner-card">
+        <div class="partner-head">
+          <div class="partner-logo booking">B.</div>
+          <div>
+            <div class="partner-name">Booking.com Genius</div>
+            <div class="partner-save">10–20% off + free breakfast</div>
+          </div>
+        </div>
+        <p class="partner-desc">Connect your Booking.com Genius level — L1, L2, L3 perks apply automatically. Late check-out, room upgrades, priority support included.</p>
+        <button class="link-btn" onclick="linkPartner(this, 'Booking.com')">🔗 Link Booking.com</button>
+      </div>
+
+      <!-- Zomato -->
+      <div class="partner-card">
+        <div class="partner-head">
+          <div class="partner-logo zomato">Z</div>
+          <div>
+            <div class="partner-name">Zomato Pro</div>
+            <div class="partner-save">Up to 40% off dining</div>
+          </div>
+        </div>
+        <p class="partner-desc">Bring your Zomato Pro membership. Your restaurant deals in any city appear directly on the itinerary — auto-applied at check-out.</p>
+        <button class="link-btn" onclick="linkPartner(this, 'Zomato')">🔗 Link Zomato</button>
+      </div>
+
+      <!-- EazyDiner -->
+      <div class="partner-card">
+        <div class="partner-head">
+          <div class="partner-logo eazy">ED</div>
+          <div>
+            <div class="partner-name">EazyDiner Prime</div>
+            <div class="partner-save">25% avg on restaurants</div>
+          </div>
+        </div>
+        <p class="partner-desc">EazyDiner Prime members see exclusive deals across India, UAE, and UK restaurants right inside Tripster.</p>
+        <button class="link-btn" onclick="linkPartner(this, 'EazyDiner')">🔗 Link EazyDiner</button>
+      </div>
+
+      <!-- OYO -->
+      <div class="partner-card">
+        <div class="partner-head">
+          <div class="partner-logo oyo">OYO</div>
+          <div>
+            <div class="partner-name">OYO Wizard</div>
+            <div class="partner-save">Budget stays, up to 60% off</div>
+          </div>
+        </div>
+        <p class="partner-desc">Wizard Gold/Platinum members see OYO Wizard rates automatically for budget-friendly India trips.</p>
+        <button class="link-btn" onclick="linkPartner(this, 'OYO')">🔗 Link OYO</button>
+      </div>
+
+      <!-- GetYourGuide -->
+      <div class="partner-card">
+        <div class="partner-head">
+          <div class="partner-logo gyg">GYG</div>
+          <div>
+            <div class="partner-name">GetYourGuide</div>
+            <div class="partner-save">Activities + skip-the-line</div>
+          </div>
+        </div>
+        <p class="partner-desc">Connect to auto-suggest skip-the-line tickets for museums, tours, and day trips at your destination.</p>
+        <button class="link-btn" onclick="linkPartner(this, 'GetYourGuide')">🔗 Link GetYourGuide</button>
+      </div>
+    </div>
+
+    <div class="partner-note">
+      <span class="ico">🔐</span>
+      <div>
+        <strong>OAuth-secured.</strong> We never see your partner passwords. Disconnect any account in one tap. Your loyalty points, membership tier, and receipts stay on your accounts — Tripster just reads prices in real time.
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────── FEATURE 3: IMPORT FRIENDS FROM SOCIAL ───────────────── -->
+  <section class="features">
+    <div class="section-center">
+      <div class="section-eyebrow"><span>📇</span> Bring your crew</div>
+      <h2 class="section-title">Find your travel people, <span class="grad">wherever they are.</span></h2>
+      <p class="section-sub">Import friends from the apps you already use. Tripster matches hashed contacts to existing users — and sends tasteful invites to the rest. No spam. Ever.</p>
+    </div>
+
+    <div class="social-grid">
+      <div class="social-card">
+        <div class="social-ico google">G</div>
+        <div class="social-name">Google Contacts</div>
+        <div class="social-meta">Match via Gmail · Instant setup</div>
+        <button class="social-cta" onclick="alert('🔗 Google OAuth flow (demo)')">Import</button>
+      </div>
+
+      <div class="social-card">
+        <div class="social-ico contacts">📇</div>
+        <div class="social-name">Phone Contacts</div>
+        <div class="social-meta">Match by phone · Hashed locally</div>
+        <button class="social-cta" onclick="alert('📱 Requesting contacts permission (demo)')">Import</button>
+      </div>
+
+      <div class="social-card">
+        <div class="social-ico whatsapp">💬</div>
+        <div class="social-name">WhatsApp</div>
+        <div class="social-meta">Share trips + invite crew</div>
+        <button class="social-cta" onclick="alert('Opens WhatsApp share (demo)')">Connect</button>
+      </div>
+
+      <div class="social-card">
+        <div class="social-ico instagram">📷</div>
+        <div class="social-name">Instagram</div>
+        <div class="social-meta">Share trip cards to Story <br>(import not supported by IG API)</div>
+        <button class="social-cta share" onclick="alert('📸 Share to IG Story (demo)')">Share</button>
+      </div>
+
+      <div class="social-card">
+        <div class="social-ico facebook">f</div>
+        <div class="social-name">Facebook</div>
+        <div class="social-meta">Find friends through FB network</div>
+        <button class="social-cta soon" disabled>Soon</button>
+      </div>
+
+      <div class="social-card">
+        <div class="social-ico twitter">𝕏</div>
+        <div class="social-name">Twitter / X</div>
+        <div class="social-meta">Share itineraries as cards</div>
+        <button class="social-cta" onclick="alert('Opens X share composer (demo)')">Share</button>
+      </div>
+    </div>
+
+    <div class="privacy-note">
+      <strong>🔒 How your contacts are handled:</strong>
+      We SHA-256 hash emails and phone numbers on your device before sending. Raw contacts never leave your phone.
+      Matched users see "Someone from your contacts joined Tripster" — they can't see your info unless they accept.
+      Disconnect + purge any time from Settings → Privacy.
+    </div>
+  </section>
+
+  <!-- ───────────────── PLAN / RESULTS ───────────────── -->
+  <section class="plan-section" id="plan">
+    <!-- AI thinking card -->
+    <div class="thinking-card" id="thinking">
+      <div class="thinking-head">
+        <div class="ai-avatar">✦</div>
+        <div>
+          <div class="t1">Tripster is planning your trip…</div>
+          <div class="t2" id="t2">Calling tools · reading real sources</div>
+        </div>
+      </div>
+      <div id="steps">
+        <div class="step active" data-tool="google_places"><span class="dot">●</span> Searching hotels on Google Places<span class="tool-tag">search_places</span></div>
+        <div class="step" data-tool="youtube"><span class="dot">○</span> Finding YouTube travel vlogs<span class="tool-tag">search_youtube</span></div>
+        <div class="step" data-tool="flights"><span class="dot">○</span> Checking cheapest flights<span class="tool-tag">search_flights</span></div>
+        <div class="step" data-tool="reviews"><span class="dot">○</span> Analyzing traveler sentiment<span class="tool-tag">gemini-2.5</span></div>
+        <div class="step" data-tool="deals"><span class="dot">○</span> Scanning restaurant deals<span class="tool-tag">zomato + eazydiner</span></div>
+        <div class="step" data-tool="optimize"><span class="dot">○</span> Optimizing budget<span class="tool-tag">smart_remove</span></div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="result-grid" id="results" style="display:none;">
+      <!-- Left col: itinerary cards -->
+      <div class="itinerary-col">
+
+        <div class="budget-ring">
+          <div class="ring-label">
+            <div class="l1">Total · 5 days in Bali</div>
+            <div class="l2" id="total-top">₹47,840 <span style="font-size:13px; color:var(--text-mute); font-weight:400;">/ ₹50,000</span></div>
+          </div>
+          <div class="ring"></div>
+        </div>
+
+        <!-- Flights -->
+        <div class="card">
+          <div class="card-h">
+            <div class="card-icon blue">✈️</div>
+            <div>
+              <div class="card-title">Flights · Delhi ⇄ Denpasar <span class="ghost-tag book">BOOK</span></div>
+              <div class="card-sub">AirAsia · 1 stop · 11h 30m</div>
+            </div>
+            <div class="card-cost">₹22,500</div>
+          </div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🛫 15 May · Delhi → Denpasar · QZ-7894</span><span class="cost">₹11,200</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🛬 22 May · Denpasar → Delhi · QZ-7895</span><span class="cost">₹11,300</span></div>
+          <div style="font-size:11px; color:var(--text-mute); margin-top:6px; padding:8px 12px; background: rgba(245,158,11,.1); border-radius: 8px; border-left: 2px solid var(--amber);">
+            💡 YouTuber <strong>@travelwithamit</strong>: "AirAsia → add baggage at booking. ₹1,500 cheaper than at airport."
+          </div>
+        </div>
+
+        <!-- Hotels -->
+        <div class="card">
+          <div class="card-h">
+            <div class="card-icon purple">🏨</div>
+            <div>
+              <div class="card-title">Stays · 2 properties <span class="ghost-tag book">BOOK</span></div>
+              <div class="card-sub">Booking.com · free cancellation</div>
+            </div>
+            <div class="card-cost">₹11,000</div>
+          </div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">Seminyak Villa · Day 1–3</span><span class="rating">⭐ 4.8</span><span class="cost">₹6,000</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">Ubud Jungle Resort · Day 4–5</span><span class="rating">⭐ 4.7</span><span class="cost">₹5,000</span></div>
+        </div>
+
+        <!-- Day-by-day -->
+        <div class="card">
+          <div class="card-h">
+            <div class="card-icon green">📅</div>
+            <div>
+              <div class="card-title">Day 1 · Seminyak arrival</div>
+              <div class="card-sub">4 activities · walkable</div>
+            </div>
+            <div class="card-cost">₹3,200</div>
+          </div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🌅 10:00 · Tanah Lot Temple</span><span class="rating">⭐ 4.6</span><span class="cost">₹500</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🍝 13:00 · La Lucciola lunch <span class="ghost-tag deal">30% OFF</span></span><span class="rating">⭐ 4.8</span><span class="cost">₹1,200</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🏖️ 16:00 · Seminyak Beach</span><span class="cost">Free</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🌇 19:00 · Potato Head sunset <span class="ghost-tag deal">20% OFF</span></span><span class="rating">⭐ 4.7</span><span class="cost">₹1,500</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">
+            <div class="card-icon amber">📅</div>
+            <div>
+              <div class="card-title">Day 2 · Ubud rice terraces</div>
+              <div class="card-sub">Monkey forest · spa · traditional lunch</div>
+            </div>
+            <div class="card-cost">₹4,800</div>
+          </div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🐒 Monkey Forest Sanctuary</span><span class="rating">⭐ 4.5</span><span class="cost">₹300</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🌾 Tegalalang Rice Terraces</span><span class="rating">⭐ 4.7</span><span class="cost">₹200</span></div>
+          <div class="activity off"><input type="checkbox" /><span class="label">☕ Luwak Coffee Tour <span style="color:var(--amber); font-size:11px;">· skippable</span></span><span class="rating">⭐ 4.2</span><span class="cost">₹1,500</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">💆 Karsa Spa · 90 min</span><span class="rating">⭐ 4.9</span><span class="cost">₹2,800</span></div>
+        </div>
+
+        <!-- Smart Remove -->
+        <div class="card" style="border-color: rgba(245,158,11,.3); background: linear-gradient(180deg, rgba(245,158,11,.06), transparent);">
+          <div class="card-h">
+            <div class="card-icon amber">💡</div>
+            <div>
+              <div class="card-title">Smart Remove · Save up to ₹4,200</div>
+              <div class="card-sub">AI picks based on enjoyment/cost ratio</div>
+            </div>
+          </div>
+          <div class="activity"><span class="label">Skip Luwak Coffee (YT: "touristy, overpriced")</span><span class="cost" style="color:var(--amber)">-₹1,500</span></div>
+          <div class="activity"><span class="label">Swap Seminyak Villa → Kuta Hostel (Day 5)</span><span class="cost" style="color:var(--amber)">-₹2,200</span></div>
+          <div class="activity"><span class="label">Rent scooter instead of taxi for Day 2</span><span class="cost" style="color:var(--amber)">-₹500</span></div>
+        </div>
+      </div>
+
+      <!-- Right col: basket -->
+      <aside class="basket">
+        <div class="basket-head">
+          <span>🧺</span>
+          <span>Book Together</span>
+          <span class="basket-count">7</span>
+        </div>
+        <div class="basket-sub">One flow. Best prices. Earn XP for every booking.</div>
+
+        <div class="basket-group">
+          <div class="bg-head">✈️ Flights <span class="bg-amount">₹22,500</span></div>
+          <div class="bg-partner">via MakeMyTrip</div>
+          <button class="partner-cta" onclick="openPartner('MakeMyTrip')">Book flights <span class="xp">+200 XP</span></button>
+        </div>
+
+        <div class="basket-group">
+          <div class="bg-head">🏨 Hotels <span class="bg-amount">₹11,000</span></div>
+          <div class="bg-partner">via Booking.com · free cancel</div>
+          <button class="partner-cta" onclick="openPartner('Booking.com')">Book hotels <span class="xp">+150 XP</span></button>
+        </div>
+
+        <div class="basket-group">
+          <div class="bg-head">🍽️ Restaurant deals <span class="bg-amount save">−₹660</span></div>
+          <div class="bg-partner">via Zomato · 2 coupons</div>
+          <button class="partner-cta" onclick="openPartner('Zomato')">Claim deals <span class="xp">+80 XP</span></button>
+        </div>
+
+        <div class="basket-group">
+          <div class="bg-head">🎟️ Activities <span class="bg-amount">₹3,500</span></div>
+          <div class="bg-partner">via GetYourGuide</div>
+          <button class="partner-cta" onclick="openPartner('GetYourGuide')">Book tours <span class="xp">+120 XP</span></button>
+        </div>
+
+        <div class="basket-total">
+          <div class="bt-row"><span>Bookable subtotal</span><span>₹37,000</span></div>
+          <div class="bt-row"><span>Deal savings</span><span style="color:var(--amber)">−₹660</span></div>
+          <div class="bt-row"><span>Activities</span><span>₹3,500</span></div>
+          <div class="bt-row grand"><span>Total</span><span>₹39,840</span></div>
+          <button class="book-cta" onclick="showInvite()">🛒 Book All Together</button>
+          <div class="xp-hint">Unlock <strong>550 XP</strong> and "Bali Explorer" badge</div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ───────────────── INVITE + SOCIAL ───────────────── -->
+  <section class="invite-section" id="invite">
+    <div class="invite-hero">
+      <h2>Travel is better <span class="grad">with your crew</span></h2>
+      <p>Invite friends → you both get 500 XP and 1 month of Tripster Pro. Race them to unlock every corner of your destination.</p>
+
+      <div class="invite-box">
+        <input type="text" id="invite-link" value="https://tripster.ai/invite/anish-bali-x7k2" readonly />
+        <button onclick="copyInvite()">📋 Copy link</button>
+      </div>
+
+      <div class="share-grid">
+        <button class="share-btn wa" onclick="alert('Opens WhatsApp share')"><span class="ico">💬</span>WhatsApp</button>
+        <button class="share-btn ig" onclick="alert('Opens Instagram story share')"><span class="ico">📷</span>Instagram</button>
+        <button class="share-btn tw" onclick="alert('Opens Twitter/X share')"><span class="ico">𝕏</span>Twitter / X</button>
+        <button class="share-btn" onclick="alert('Opens email share')"><span class="ico">✉️</span>Email</button>
+        <button class="share-btn" onclick="alert('QR code shown')"><span class="ico">🔲</span>QR code</button>
+      </div>
+    </div>
+
+    <div class="friends-preview">
+      <div class="friends-card">
+        <h3>👥 Friends already on Tripster</h3>
+        <div class="friend-row">
+          <div class="avatar" style="background:linear-gradient(135deg,#f472b6,#fb923c)">SR</div>
+          <div class="f-info">
+            <div class="f-name">Sarah Rao <span class="status-dot trip"></span></div>
+            <div class="f-meta">Level 8 · Traveling in Agra · 2 ✓ ahead of you</div>
+          </div>
+          <button class="f-action">⚔️ Battle</button>
+        </div>
+        <div class="friend-row">
+          <div class="avatar" style="background:linear-gradient(135deg,#4ade80,#38bdf8)">DJ</div>
+          <div class="f-info">
+            <div class="f-name">Dev Joshi <span class="status-dot live"></span></div>
+            <div class="f-meta">Level 6 · Planning Ladakh · Online</div>
+          </div>
+          <button class="f-action">+ Plan</button>
+        </div>
+        <div class="friend-row">
+          <div class="avatar" style="background:linear-gradient(135deg,#a78bfa,#ef4444)">PM</div>
+          <div class="f-info">
+            <div class="f-name">Priya Mehta <span class="status-dot"></span></div>
+            <div class="f-meta">Level 5 · Last trip: Bangkok</div>
+          </div>
+          <button class="f-action">+ Plan</button>
+        </div>
+      </div>
+
+      <div class="friends-card">
+        <h3>🏆 Your Agra Battle vs Sarah</h3>
+        <div style="font-size:13px; color:var(--text-dim); margin-bottom: 12px;">
+          You're at <strong>Taj Mahal</strong> (Level 1). Sarah checked in at <strong>Taj + Agra Fort</strong> (Level 2). Catch up!
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom: 4px;">
+          <span style="color:var(--blue);">You · 1/5 stops · 50 XP</span>
+          <span style="color:var(--pink);">Sarah · 2/5 stops · 120 XP</span>
+        </div>
+        <div class="vs-bar">
+          <div class="me" style="width:20%;"></div>
+          <div class="them" style="width:40%;"></div>
+        </div>
+        <div class="vs-labels">
+          <span>🕌 Taj Mahal ✓✓</span>
+          <span>🏰 Agra Fort ✓</span>
+          <span>🌸 Mehtab Bagh</span>
+          <span>🪦 Itmad</span>
+          <span>🍜 Sadar</span>
+        </div>
+        <div style="display:flex; gap:8px; margin-top: 16px;">
+          <button class="f-action" style="flex:1; background:var(--surface); border:1px solid var(--border); color:var(--text);">👏 Cheer Sarah</button>
+          <button class="f-action" style="flex:1;">📍 Check in</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top: 48px; color: var(--text-mute); font-size: 13px;">
+      Ready to start? <a onclick="scrollTo({top:0, behavior:'smooth'})" style="color: var(--blue); cursor: pointer; font-weight: 600;">Plan another trip →</a>
+    </div>
+  </section>
+
+</main>
+
+<div class="voice-float" id="voice-float">
+  <div class="wave"><span></span><span></span><span></span><span></span></div>
+  <span id="voice-text">Listening…</span>
+</div>
+
+<script>
+  // ───── Chat input ─────
+  function fillPrompt(text) {
+    const input = document.getElementById('chat-input');
+    input.value = text;
+    input.focus();
+    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // ───── Plan trip (fake AI) ─────
+  async function startPlan() {
+    const btn = document.getElementById('send-btn');
+    btn.disabled = true;
+    document.getElementById('plan').classList.add('active');
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('thinking').style.display = '';
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth' });
+
+    const steps = document.querySelectorAll('#steps .step');
+    steps.forEach((s, i) => {
+      s.classList.remove('done', 'active');
+      s.querySelector('.dot').textContent = '○';
+      if (i === 0) { s.classList.add('active'); s.querySelector('.dot').textContent = '●'; }
+    });
+
+    for (let i = 0; i < steps.length; i++) {
+      await delay(1100);
+      steps[i].classList.remove('active');
+      steps[i].classList.add('done');
+      steps[i].querySelector('.dot').textContent = '✓';
+      if (steps[i + 1]) {
+        steps[i + 1].classList.add('active');
+        steps[i + 1].querySelector('.dot').textContent = '●';
+      }
+    }
+    await delay(400);
+    document.getElementById('t2').textContent = 'Done · 6 tools used · 1.2s';
+    await delay(300);
+    document.getElementById('results').style.display = '';
+    btn.disabled = false;
+    speak("Your Bali trip is ready. 5 days, 47,840 rupees, under budget. Scroll down to see and book.");
+  }
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  // ───── Partner / Book ─────
+  function openPartner(p) {
+    alert(`🔗 Redirecting to ${p} (demo)\n\nIn production: affiliate deep-link opens in new tab.`);
+  }
+  function linkPartner(btn, name) {
+    if (btn.classList.contains('linked')) {
+      if (confirm(`Disconnect ${name}?`)) {
+        btn.classList.remove('linked');
+        btn.innerHTML = `🔗 Link ${name}`;
+      }
+      return;
+    }
+    btn.innerHTML = '⏳ Connecting…';
+    setTimeout(() => {
+      btn.classList.add('linked');
+      btn.innerHTML = `✓ Linked · Member prices active`;
+    }, 900);
+  }
+  function showInvite() {
+    document.getElementById('invite').classList.add('active');
+    document.getElementById('invite').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ───── Invite ─────
+  function copyInvite() {
+    const input = document.getElementById('invite-link');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (_) {}
+    if (!ok && navigator.clipboard) navigator.clipboard.writeText(input.value).then(()=>ok=true).catch(()=>{});
+    alert(ok ? '🔗 Link copied! Share anywhere.' : 'Copy manually: ' + input.value);
+  }
+
+  // ───── Voice input (SpeechRecognition) ─────
+  let recognition = null, listening = false;
+  function initSR() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return null;
+    const r = new SR();
+    r.continuous = false; r.interimResults = true; r.lang = 'en-IN';
+    r.onstart = () => {
+      listening = true;
+      document.getElementById('mic-btn').classList.add('listening');
+      document.getElementById('voice-float').classList.add('show');
+      document.getElementById('voice-text').textContent = 'Listening…';
+    };
+    r.onresult = e => {
+      let t = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+      document.getElementById('chat-input').value = t;
+      document.getElementById('voice-text').textContent = '"' + t.slice(0, 40) + (t.length > 40 ? '…' : '') + '"';
+    };
+    r.onerror = e => { document.getElementById('voice-text').textContent = 'Error: ' + e.error; stopMic(); };
+    r.onend = () => {
+      stopMic();
+      const v = document.getElementById('chat-input').value.trim();
+      if (v && v.length > 5) setTimeout(() => startPlan(), 400);
+    };
+    return r;
+  }
+  function toggleMic() {
+    if (!recognition) recognition = initSR();
+    if (!recognition) { alert('🎤 Voice needs Chrome/Edge/Safari'); return; }
+    if (listening) recognition.stop();
+    else { document.getElementById('chat-input').value = ''; try { recognition.start(); } catch (_) {} }
+  }
+  function stopMic() {
+    listening = false;
+    document.getElementById('mic-btn').classList.remove('listening');
+    setTimeout(() => document.getElementById('voice-float').classList.remove('show'), 400);
+  }
+
+  // ───── TTS ─────
+  let ttsEnabled = false;
+  function speak(text) {
+    if (!ttsEnabled || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.05; u.lang = 'en-IN';
+    window.speechSynthesis.speak(u);
+  }
+
+  // ───── Keyboard shortcuts ─────
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.code === 'Space') { e.preventDefault(); toggleMic(); }
+    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); startPlan(); }
+  });
+
+  // Auto-focus textarea
+  window.addEventListener('load', () => {
+    setTimeout(() => document.getElementById('chat-input').focus(), 300);
+  });
+</script>
+</body>
+</html>
