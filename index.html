@@ -844,6 +844,159 @@
   @media (max-width: 800px) {
     .dual-grid { grid-template-columns: 1fr; }
   }
+
+  /* ═══════════════════════════════════════ */
+  /* PRICING                                 */
+  /* ═══════════════════════════════════════ */
+  .pricing-section {
+    max-width: 1160px; margin: 0 auto;
+    padding: 80px 24px;
+  }
+  .billing-toggle {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 4px; border-radius: 999px; margin: 20px auto 44px;
+  }
+  .billing-toggle button {
+    padding: 8px 18px; border-radius: 999px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text-dim); font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .billing-toggle button.active {
+    background: var(--surface-hi); color: var(--text);
+  }
+  .billing-toggle .save-pill {
+    background: linear-gradient(135deg, var(--green), var(--cyan));
+    color: var(--bg); font-size: 10px; font-weight: 800;
+    padding: 2px 8px; border-radius: 999px;
+  }
+  .pricing-center { text-align: center; }
+
+  .plans-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 20px; align-items: stretch;
+  }
+  .plan-card {
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 22px; padding: 32px 28px;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+    transition: all .25s;
+  }
+  .plan-card:hover { transform: translateY(-4px); border-color: var(--border-hi); }
+  .plan-card.featured {
+    border: 1px solid rgba(139,92,246,.5);
+    background:
+      radial-gradient(ellipse at top, rgba(139,92,246,.18), transparent 60%),
+      var(--surface);
+    box-shadow: 0 0 40px rgba(139,92,246,.15);
+  }
+  .plan-card.featured::before {
+    content: 'MOST POPULAR';
+    position: absolute; top: 16px; right: 16px;
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    color: white; font-size: 10px; font-weight: 800; letter-spacing: .08em;
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .plan-name {
+    font-size: 13px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .plan-tagline {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+    margin-bottom: 20px; line-height: 1.2;
+  }
+  .plan-price {
+    display: flex; align-items: baseline; gap: 4px;
+    margin-bottom: 4px;
+  }
+  .plan-price .amount {
+    font-size: 44px; font-weight: 800; letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .plan-price .currency { font-size: 20px; font-weight: 700; color: var(--text-dim); }
+  .plan-price .period { font-size: 14px; color: var(--text-mute); margin-left: 4px; }
+  .plan-price-note { font-size: 12px; color: var(--text-mute); margin-bottom: 24px; min-height: 16px; }
+  .plan-card.featured .plan-price .amount {
+    background: linear-gradient(135deg, var(--blue), var(--violet));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .plan-cta {
+    width: 100%; padding: 12px; border-radius: 12px;
+    background: var(--surface-hi); border: 1px solid var(--border-hi);
+    color: var(--text); font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: all .2s;
+    margin-bottom: 24px;
+  }
+  .plan-cta:hover { background: var(--surface); border-color: var(--text-dim); }
+  .plan-card.featured .plan-cta {
+    background: linear-gradient(135deg, var(--blue), var(--violet));
+    color: white; border-color: transparent;
+    box-shadow: 0 4px 24px rgba(139,92,246,.3);
+  }
+  .plan-card.featured .plan-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(139,92,246,.45);
+  }
+
+  .plan-features {
+    list-style: none; flex: 1;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .plan-features li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; color: var(--text);
+    line-height: 1.45;
+  }
+  .plan-features li .check {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(16,185,129,.15); color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .plan-features li.muted { color: var(--text-mute); }
+  .plan-features li.muted .check { background: var(--surface-hi); color: var(--text-mute); }
+  .plan-features li strong { color: var(--text); font-weight: 700; }
+
+  .plan-divider {
+    border: none; height: 1px; background: var(--border);
+    margin: 16px 0;
+  }
+
+  .pricing-faq {
+    margin-top: 60px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .faq-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+  }
+  .faq-q { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .faq-a { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+
+  .guarantee-strip {
+    margin-top: 40px; padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(16,185,129,.1), rgba(59,130,246,.1));
+    border: 1px dashed var(--border-hi); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 24px; flex-wrap: wrap;
+    font-size: 13px; color: var(--text-dim);
+  }
+  .guarantee-item { display: flex; align-items: center; gap: 8px; }
+  .guarantee-item .ico { font-size: 18px; }
+
+  @media (max-width: 900px) {
+    .plans-grid { grid-template-columns: 1fr; }
+    .plan-card.featured { order: -1; }
+  }
 </style>
 </head>
 <body>
@@ -861,8 +1014,8 @@
     </div>
     <div class="nav-links">
       <a onclick="scrollTo({top:0, behavior:'smooth'})">Home</a>
-      <a>Pricing</a>
-      <a>How it works</a>
+      <a onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
+      <a onclick="document.querySelector('.features').scrollIntoView({behavior:'smooth'})">How it works</a>
       <button class="btn-ghost">Sign in</button>
     </div>
   </nav>
@@ -1387,6 +1540,142 @@
     </div>
   </section>
 
+  <!-- ───────────────── PRICING / PLANS ───────────────── -->
+  <section class="pricing-section" id="pricing">
+    <div class="pricing-center">
+      <div class="section-eyebrow"><span>💎</span> Plans for every traveler</div>
+      <h2 class="section-title">Free to start. <span class="grad">Unlock your crew.</span></h2>
+      <p class="section-sub" style="margin:0 auto 10px;">No credit card for Explorer. Cancel Pro or Crew anytime — no questions asked.</p>
+
+      <div class="billing-toggle" role="tablist">
+        <button class="active" id="bill-monthly" onclick="setBilling('monthly')">Monthly</button>
+        <button id="bill-yearly" onclick="setBilling('yearly')">
+          Yearly <span class="save-pill">SAVE 33%</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="plans-grid">
+      <!-- Explorer (Free) -->
+      <div class="plan-card">
+        <div class="plan-name">Explorer</div>
+        <div class="plan-tagline">For the solo traveler getting started.</div>
+        <div class="plan-price">
+          <span class="currency">₹</span><span class="amount">0</span>
+          <span class="period">/ forever</span>
+        </div>
+        <div class="plan-price-note">No card required</div>
+        <button class="plan-cta" onclick="alert('✨ Starting Explorer · no card needed')">Start free</button>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> <span><strong>3 AI-planned trips</strong> per month</span></li>
+          <li><span class="check">✓</span> Gemini 2.5 Flash with Google Places + YouTube tools</li>
+          <li><span class="check">✓</span> Smart Remove (basic)</li>
+          <li><span class="check">✓</span> Book via partners (affiliate links)</li>
+          <li><span class="check">✓</span> Up to <strong>5 friends</strong> in your crew</li>
+          <li><span class="check">✓</span> 1 trip battle at a time</li>
+          <li class="muted"><span class="check">–</span> Co-editing limited to 2 people</li>
+          <li class="muted"><span class="check">–</span> No priority support</li>
+        </ul>
+      </div>
+
+      <!-- Pro (Featured) -->
+      <div class="plan-card featured">
+        <div class="plan-name">Pro</div>
+        <div class="plan-tagline">Everything for frequent travelers.</div>
+        <div class="plan-price">
+          <span class="currency">₹</span><span class="amount" id="price-pro">199</span>
+          <span class="period" id="period-pro">/ month</span>
+        </div>
+        <div class="plan-price-note" id="note-pro">Billed monthly · cancel anytime</div>
+        <button class="plan-cta" onclick="alert('💎 Upgrading to Pro · 7-day free trial')">Start 7-day free trial</button>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> <strong>Unlimited AI trips</strong></li>
+          <li><span class="check">✓</span> Gemini 2.5 <strong>Pro</strong> for complex multi-country plans</li>
+          <li><span class="check">✓</span> Advanced Smart Remove with "What if" simulator</li>
+          <li><span class="check">✓</span> Offline maps + downloadable PDF itineraries</li>
+          <li><span class="check">✓</span> <strong>All partner integrations</strong> (Booking Genius, MMT Black, Zomato Pro, OYO Wizard…)</li>
+          <li><span class="check">✓</span> Up to <strong>25 friends</strong> in your crew</li>
+          <li><span class="check">✓</span> Unlimited trip battles & custom challenges</li>
+          <li><span class="check">✓</span> Priority email support (under 12h)</li>
+          <li><span class="check">✓</span> Exclusive badges & XP boosters (2x weekends)</li>
+        </ul>
+      </div>
+
+      <!-- Crew -->
+      <div class="plan-card">
+        <div class="plan-name">Crew</div>
+        <div class="plan-tagline">For friends and families who travel together.</div>
+        <div class="plan-price">
+          <span class="currency">₹</span><span class="amount" id="price-crew">399</span>
+          <span class="period" id="period-crew">/ month</span>
+        </div>
+        <div class="plan-price-note" id="note-crew">Up to 6 members · one bill</div>
+        <button class="plan-cta" onclick="alert('👥 Upgrading to Crew · invite up to 6 members')">Upgrade to Crew</button>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> Everything in <strong>Pro</strong>, for up to <strong>6 people</strong></li>
+          <li><span class="check">✓</span> <strong>Real-time co-editing</strong> without limits</li>
+          <li><span class="check">✓</span> Automatic cost splitting & group wallet</li>
+          <li><span class="check">✓</span> <strong>Unlimited crew</strong> size (300+ friends)</li>
+          <li><span class="check">✓</span> Group travel concierge (human support within 2h)</li>
+          <li><span class="check">✓</span> Private leaderboards + custom crew badges</li>
+          <li><span class="check">✓</span> Early access to new destinations & features</li>
+          <li><span class="check">✓</span> API access for trip embeds</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Guarantees -->
+    <div class="guarantee-strip">
+      <div class="guarantee-item"><span class="ico">🛡️</span> 7-day free trial on Pro & Crew</div>
+      <div class="guarantee-item"><span class="ico">💰</span> 30-day money-back guarantee</div>
+      <div class="guarantee-item"><span class="ico">🚫</span> Cancel anytime · no lock-in</div>
+      <div class="guarantee-item"><span class="ico">🇮🇳</span> UPI, cards, wallets accepted</div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="pricing-faq">
+      <div class="faq-card">
+        <div class="faq-q">Do I pay for affiliate bookings?</div>
+        <div class="faq-a">No. Hotels, flights, and deals are booked at the partner's standard (or member) prices — Tripster earns a commission from the partner, not you.</div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-q">Can I switch plans anytime?</div>
+        <div class="faq-a">Yes. Upgrade, downgrade, or cancel on your own — changes apply immediately, and we prorate your bill fairly.</div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-q">What does Crew actually include?</div>
+        <div class="faq-a">All Pro features, for up to 6 members on one bill, plus unlimited group co-editing, a shared wallet for splitting costs, and human travel concierge.</div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-q">Do you offer student discounts?</div>
+        <div class="faq-a">Yes — 50% off Pro with a valid student email (.ac.in / .edu). Just sign up with your student ID and we apply it automatically.</div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-q">Is my data safe?</div>
+        <div class="faq-a">We never sell your data. Partner accounts use OAuth — we don't see your passwords. Delete your data in one tap from Settings → Privacy.</div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-q">Can businesses use this?</div>
+        <div class="faq-a">We're launching <strong>Tripster for Business</strong> soon — for companies planning offsites and client trips. <a style="color:var(--blue); cursor:pointer;">Join the waitlist →</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────── FOOTER ───────────────── -->
+  <footer style="border-top: 1px solid var(--border); margin-top: 40px; padding: 40px 24px; text-align: center; color: var(--text-mute); font-size: 13px;">
+    <div style="max-width: 1160px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;">
+      <div class="logo"><div class="logo-mark">✦</div><span>Tripster</span></div>
+      <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+        <a style="cursor:pointer;">Privacy</a>
+        <a style="cursor:pointer;">Terms</a>
+        <a style="cursor:pointer;">Affiliate program</a>
+        <a style="cursor:pointer;">Press kit</a>
+        <a style="cursor:pointer;">Careers</a>
+      </div>
+      <div>© 2026 Tripster AI · Made in India 🇮🇳</div>
+    </div>
+  </footer>
+
 </main>
 
 <div class="voice-float" id="voice-float">
@@ -1442,6 +1731,22 @@
   function openPartner(p) {
     alert(`🔗 Redirecting to ${p} (demo)\n\nIn production: affiliate deep-link opens in new tab.`);
   }
+  function setBilling(cycle) {
+    const isYearly = cycle === 'yearly';
+    document.getElementById('bill-monthly').classList.toggle('active', !isYearly);
+    document.getElementById('bill-yearly').classList.toggle('active', isYearly);
+
+    // Pro: ₹199/mo · ₹1,599/yr (~₹133/mo effective, 33% off)
+    document.getElementById('price-pro').textContent  = isYearly ? '1,599' : '199';
+    document.getElementById('period-pro').textContent = isYearly ? '/ year' : '/ month';
+    document.getElementById('note-pro').textContent   = isYearly ? '₹133/mo billed yearly · save ₹789' : 'Billed monthly · cancel anytime';
+
+    // Crew: ₹399/mo · ₹3,199/yr (~₹266/mo effective, 33% off)
+    document.getElementById('price-crew').textContent  = isYearly ? '3,199' : '399';
+    document.getElementById('period-crew').textContent = isYearly ? '/ year' : '/ month';
+    document.getElementById('note-crew').textContent   = isYearly ? '₹266/mo · up to 6 members' : 'Up to 6 members · one bill';
+  }
+
   function linkPartner(btn, name) {
     if (btn.classList.contains('linked')) {
       if (confirm(`Disconnect ${name}?`)) {
