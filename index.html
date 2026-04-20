@@ -1040,7 +1040,7 @@
     <div class="composer-wrap">
       <div class="composer-glow"></div>
       <div class="composer">
-        <textarea id="chat-input" placeholder="Ask anything — 'Plan a 5-day Bali trip for 2, ₹50k budget, love beaches'">Plan a 5-day Bali trip for 2 people, ₹50,000 budget, beaches and street food</textarea>
+        <textarea id="chat-input" placeholder="Ask anything — 'Plan a 5-day Bali trip for 2, $600 budget, love beaches'">Plan a 5-day Bali trip for 2 people, $600 budget, beaches and street food</textarea>
         <div class="composer-bar">
           <button class="tool-btn" title="Attach photo / itinerary"></button>
           <button class="tool-btn mic" id="mic-btn" onclick="toggleMic()" title="Voice input (Ctrl+Space)">🎤</button>
@@ -1055,12 +1055,12 @@
 
     <!-- Suggestion chips -->
     <div class="suggestions">
-      <div class="chip" onclick="fillPrompt('5-day Bali trip, 2 people, ₹50k, beaches + food')"><span class="chip-emoji">🏝️</span>Bali honeymoon</div>
-      <div class="chip" onclick="fillPrompt('Spiti Valley bike trip, 7 days, ₹25k budget')"><span class="chip-emoji">🏔️</span>Spiti road trip</div>
-      <div class="chip" onclick="fillPrompt('3-day Agra heritage tour, ₹15k, photography')"><span class="chip-emoji">🕌</span>Agra heritage</div>
-      <div class="chip" onclick="fillPrompt('Weekend in Goa, ₹12k, best beaches and nightlife')"><span class="chip-emoji">🍹</span>Goa weekend</div>
-      <div class="chip" onclick="fillPrompt('Bangkok 4 days, ₹30k, street food and temples')"><span class="chip-emoji">🍜</span>Bangkok food crawl</div>
-      <div class="chip" onclick="fillPrompt('Maldives honeymoon 4 days, ₹2L, romantic luxury')"><span class="chip-emoji">💍</span>Maldives luxury</div>
+      <div class="chip" onclick="fillPrompt('5-day Bali trip, 2 people, $600, beaches + food')"><span class="chip-emoji">🏝️</span>Bali honeymoon</div>
+      <div class="chip" onclick="fillPrompt('Spiti Valley bike trip, 7 days, $300 budget')"><span class="chip-emoji">🏔️</span>Spiti road trip</div>
+      <div class="chip" onclick="fillPrompt('3-day Agra heritage tour, $180, photography')"><span class="chip-emoji">🕌</span>Agra heritage</div>
+      <div class="chip" onclick="fillPrompt('Weekend in Goa, $150, best beaches and nightlife')"><span class="chip-emoji">🍹</span>Goa weekend</div>
+      <div class="chip" onclick="fillPrompt('Bangkok 4 days, $350, street food and temples')"><span class="chip-emoji">🍜</span>Bangkok food crawl</div>
+      <div class="chip" onclick="fillPrompt('Maldives honeymoon 4 days, $2,400, romantic luxury')"><span class="chip-emoji">💍</span>Maldives luxury</div>
     </div>
 
     <!-- Trust row -->
@@ -1332,7 +1332,7 @@
         <div class="budget-ring">
           <div class="ring-label">
             <div class="l1">Total · 5 days in Bali</div>
-            <div class="l2" id="total-top">₹47,840 <span style="font-size:13px; color:var(--text-mute); font-weight:400;">/ ₹50,000</span></div>
+            <div class="l2" id="total-top">$575 <span style="font-size:13px; color:var(--text-mute); font-weight:400;">/ $600</span></div>
           </div>
           <div class="ring"></div>
         </div>
@@ -1345,12 +1345,12 @@
               <div class="card-title">Flights · Delhi ⇄ Denpasar <span class="ghost-tag book">BOOK</span></div>
               <div class="card-sub">AirAsia · 1 stop · 11h 30m</div>
             </div>
-            <div class="card-cost">₹22,500</div>
+            <div class="card-cost">$270</div>
           </div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">🛫 15 May · Delhi → Denpasar · QZ-7894</span><span class="cost">₹11,200</span></div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">🛬 22 May · Denpasar → Delhi · QZ-7895</span><span class="cost">₹11,300</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🛫 15 May · Delhi → Denpasar · QZ-7894</span><span class="cost">$134</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🛬 22 May · Denpasar → Delhi · QZ-7895</span><span class="cost">$136</span></div>
           <div style="font-size:11px; color:var(--text-mute); margin-top:6px; padding:8px 12px; background: rgba(245,158,11,.1); border-radius: 8px; border-left: 2px solid var(--amber);">
-            💡 YouTuber <strong>@travelwithamit</strong>: "AirAsia → add baggage at booking. ₹1,500 cheaper than at airport."
+            💡 YouTuber <strong>@travelwithamit</strong>: "AirAsia → add baggage at booking. $18 cheaper than at airport."
           </div>
         </div>
 
@@ -1362,10 +1362,10 @@
               <div class="card-title">Stays · 2 properties <span class="ghost-tag book">BOOK</span></div>
               <div class="card-sub">Booking.com · free cancellation</div>
             </div>
-            <div class="card-cost">₹11,000</div>
+            <div class="card-cost">$132</div>
           </div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">Seminyak Villa · Day 1–3</span><span class="rating">⭐ 4.8</span><span class="cost">₹6,000</span></div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">Ubud Jungle Resort · Day 4–5</span><span class="rating">⭐ 4.7</span><span class="cost">₹5,000</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">Seminyak Villa · Day 1–3</span><span class="rating">⭐ 4.8</span><span class="cost">$72</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">Ubud Jungle Resort · Day 4–5</span><span class="rating">⭐ 4.7</span><span class="cost">$60</span></div>
         </div>
 
         <!-- Day-by-day -->
@@ -1376,12 +1376,12 @@
               <div class="card-title">Day 1 · Seminyak arrival</div>
               <div class="card-sub">4 activities · walkable</div>
             </div>
-            <div class="card-cost">₹3,200</div>
+            <div class="card-cost">$38</div>
           </div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">🌅 10:00 · Tanah Lot Temple</span><span class="rating">⭐ 4.6</span><span class="cost">₹500</span></div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">🍝 13:00 · La Lucciola lunch <span class="ghost-tag deal">30% OFF</span></span><span class="rating">⭐ 4.8</span><span class="cost">₹1,200</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🌅 10:00 · Tanah Lot Temple</span><span class="rating">⭐ 4.6</span><span class="cost">$6</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🍝 13:00 · La Lucciola lunch <span class="ghost-tag deal">30% OFF</span></span><span class="rating">⭐ 4.8</span><span class="cost">$15</span></div>
           <div class="activity"><input type="checkbox" checked /><span class="label">🏖️ 16:00 · Seminyak Beach</span><span class="cost">Free</span></div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">🌇 19:00 · Potato Head sunset <span class="ghost-tag deal">20% OFF</span></span><span class="rating">⭐ 4.7</span><span class="cost">₹1,500</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🌇 19:00 · Potato Head sunset <span class="ghost-tag deal">20% OFF</span></span><span class="rating">⭐ 4.7</span><span class="cost">$18</span></div>
         </div>
 
         <div class="card">
@@ -1391,12 +1391,12 @@
               <div class="card-title">Day 2 · Ubud rice terraces</div>
               <div class="card-sub">Monkey forest · spa · traditional lunch</div>
             </div>
-            <div class="card-cost">₹4,800</div>
+            <div class="card-cost">$58</div>
           </div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">🐒 Monkey Forest Sanctuary</span><span class="rating">⭐ 4.5</span><span class="cost">₹300</span></div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">🌾 Tegalalang Rice Terraces</span><span class="rating">⭐ 4.7</span><span class="cost">₹200</span></div>
-          <div class="activity off"><input type="checkbox" /><span class="label">☕ Luwak Coffee Tour <span style="color:var(--amber); font-size:11px;">· skippable</span></span><span class="rating">⭐ 4.2</span><span class="cost">₹1,500</span></div>
-          <div class="activity"><input type="checkbox" checked /><span class="label">💆 Karsa Spa · 90 min</span><span class="rating">⭐ 4.9</span><span class="cost">₹2,800</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🐒 Monkey Forest Sanctuary</span><span class="rating">⭐ 4.5</span><span class="cost">$4</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">🌾 Tegalalang Rice Terraces</span><span class="rating">⭐ 4.7</span><span class="cost">$3</span></div>
+          <div class="activity off"><input type="checkbox" /><span class="label">☕ Luwak Coffee Tour <span style="color:var(--amber); font-size:11px;">· skippable</span></span><span class="rating">⭐ 4.2</span><span class="cost">$18</span></div>
+          <div class="activity"><input type="checkbox" checked /><span class="label">💆 Karsa Spa · 90 min</span><span class="rating">⭐ 4.9</span><span class="cost">$34</span></div>
         </div>
 
         <!-- Smart Remove -->
@@ -1404,13 +1404,13 @@
           <div class="card-h">
             <div class="card-icon amber">💡</div>
             <div>
-              <div class="card-title">Smart Remove · Save up to ₹4,200</div>
+              <div class="card-title">Smart Remove · Save up to $50</div>
               <div class="card-sub">AI picks based on enjoyment/cost ratio</div>
             </div>
           </div>
-          <div class="activity"><span class="label">Skip Luwak Coffee (YT: "touristy, overpriced")</span><span class="cost" style="color:var(--amber)">-₹1,500</span></div>
-          <div class="activity"><span class="label">Swap Seminyak Villa → Kuta Hostel (Day 5)</span><span class="cost" style="color:var(--amber)">-₹2,200</span></div>
-          <div class="activity"><span class="label">Rent scooter instead of taxi for Day 2</span><span class="cost" style="color:var(--amber)">-₹500</span></div>
+          <div class="activity"><span class="label">Skip Luwak Coffee (YT: "touristy, overpriced")</span><span class="cost" style="color:var(--amber)">-$18</span></div>
+          <div class="activity"><span class="label">Swap Seminyak Villa → Kuta Hostel (Day 5)</span><span class="cost" style="color:var(--amber)">-$26</span></div>
+          <div class="activity"><span class="label">Rent scooter instead of taxi for Day 2</span><span class="cost" style="color:var(--amber)">-$6</span></div>
         </div>
       </div>
 
@@ -1424,34 +1424,34 @@
         <div class="basket-sub">One flow. Best prices. Earn XP for every booking.</div>
 
         <div class="basket-group">
-          <div class="bg-head">✈️ Flights <span class="bg-amount">₹22,500</span></div>
+          <div class="bg-head">✈️ Flights <span class="bg-amount">$270</span></div>
           <div class="bg-partner">via MakeMyTrip</div>
           <button class="partner-cta" onclick="openPartner('MakeMyTrip')">Book flights <span class="xp">+200 XP</span></button>
         </div>
 
         <div class="basket-group">
-          <div class="bg-head">🏨 Hotels <span class="bg-amount">₹11,000</span></div>
+          <div class="bg-head">🏨 Hotels <span class="bg-amount">$132</span></div>
           <div class="bg-partner">via Booking.com · free cancel</div>
           <button class="partner-cta" onclick="openPartner('Booking.com')">Book hotels <span class="xp">+150 XP</span></button>
         </div>
 
         <div class="basket-group">
-          <div class="bg-head">🍽️ Restaurant deals <span class="bg-amount save">−₹660</span></div>
+          <div class="bg-head">🍽️ Restaurant deals <span class="bg-amount save">−$8</span></div>
           <div class="bg-partner">via Zomato · 2 coupons</div>
           <button class="partner-cta" onclick="openPartner('Zomato')">Claim deals <span class="xp">+80 XP</span></button>
         </div>
 
         <div class="basket-group">
-          <div class="bg-head">🎟️ Activities <span class="bg-amount">₹3,500</span></div>
+          <div class="bg-head">🎟️ Activities <span class="bg-amount">$42</span></div>
           <div class="bg-partner">via GetYourGuide</div>
           <button class="partner-cta" onclick="openPartner('GetYourGuide')">Book tours <span class="xp">+120 XP</span></button>
         </div>
 
         <div class="basket-total">
-          <div class="bt-row"><span>Bookable subtotal</span><span>₹37,000</span></div>
-          <div class="bt-row"><span>Deal savings</span><span style="color:var(--amber)">−₹660</span></div>
-          <div class="bt-row"><span>Activities</span><span>₹3,500</span></div>
-          <div class="bt-row grand"><span>Total</span><span>₹39,840</span></div>
+          <div class="bt-row"><span>Bookable subtotal</span><span>$445</span></div>
+          <div class="bt-row"><span>Deal savings</span><span style="color:var(--amber)">−$8</span></div>
+          <div class="bt-row"><span>Activities</span><span>$42</span></div>
+          <div class="bt-row grand"><span>Total</span><span>$478</span></div>
           <button class="book-cta" onclick="showInvite()">🛒 Book All Together</button>
           <div class="xp-hint">Unlock <strong>550 XP</strong> and "Bali Explorer" badge</div>
         </div>
@@ -1561,7 +1561,7 @@
         <div class="plan-name">Explorer</div>
         <div class="plan-tagline">For the solo traveler getting started.</div>
         <div class="plan-price">
-          <span class="currency">₹</span><span class="amount">0</span>
+          <span class="currency">$</span><span class="amount">0</span>
           <span class="period">/ forever</span>
         </div>
         <div class="plan-price-note">No card required</div>
@@ -1583,7 +1583,7 @@
         <div class="plan-name">Pro</div>
         <div class="plan-tagline">Everything for frequent travelers.</div>
         <div class="plan-price">
-          <span class="currency">₹</span><span class="amount" id="price-pro">199</span>
+          <span class="currency">$</span><span class="amount" id="price-pro">4.99</span>
           <span class="period" id="period-pro">/ month</span>
         </div>
         <div class="plan-price-note" id="note-pro">Billed monthly · cancel anytime</div>
@@ -1606,7 +1606,7 @@
         <div class="plan-name">Crew</div>
         <div class="plan-tagline">For friends and families who travel together.</div>
         <div class="plan-price">
-          <span class="currency">₹</span><span class="amount" id="price-crew">399</span>
+          <span class="currency">$</span><span class="amount" id="price-crew">9.99</span>
           <span class="period" id="period-crew">/ month</span>
         </div>
         <div class="plan-price-note" id="note-crew">Up to 6 members · one bill</div>
@@ -1629,7 +1629,7 @@
       <div class="guarantee-item"><span class="ico">🛡️</span> 7-day free trial on Pro & Crew</div>
       <div class="guarantee-item"><span class="ico">💰</span> 30-day money-back guarantee</div>
       <div class="guarantee-item"><span class="ico">🚫</span> Cancel anytime · no lock-in</div>
-      <div class="guarantee-item"><span class="ico">🇮🇳</span> UPI, cards, wallets accepted</div>
+      <div class="guarantee-item"><span class="ico">💳</span> Cards, PayPal, UPI, Apple Pay &amp; more</div>
     </div>
 
     <!-- FAQ -->
@@ -1648,7 +1648,7 @@
       </div>
       <div class="faq-card">
         <div class="faq-q">Do you offer student discounts?</div>
-        <div class="faq-a">Yes — 50% off Pro with a valid student email (.ac.in / .edu). Just sign up with your student ID and we apply it automatically.</div>
+        <div class="faq-a">Yes — 50% off Pro with a valid student email (.edu, .ac.uk, .ac.in, .edu.au, and more). Verify your student ID and the discount applies automatically.</div>
       </div>
       <div class="faq-card">
         <div class="faq-q">Is my data safe?</div>
@@ -1672,7 +1672,7 @@
         <a style="cursor:pointer;">Press kit</a>
         <a style="cursor:pointer;">Careers</a>
       </div>
-      <div>© 2026 Tripster AI · Made in India 🇮🇳</div>
+      <div>© 2026 Tripster AI · Available worldwide 🌍</div>
     </div>
   </footer>
 
@@ -1723,7 +1723,7 @@
     await delay(300);
     document.getElementById('results').style.display = '';
     btn.disabled = false;
-    speak("Your Bali trip is ready. 5 days, 47,840 rupees, under budget. Scroll down to see and book.");
+    speak("Your Bali trip is ready. 5 days, 575 dollars, under budget. Scroll down to see and book.");
   }
   function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -1736,15 +1736,15 @@
     document.getElementById('bill-monthly').classList.toggle('active', !isYearly);
     document.getElementById('bill-yearly').classList.toggle('active', isYearly);
 
-    // Pro: ₹199/mo · ₹1,599/yr (~₹133/mo effective, 33% off)
-    document.getElementById('price-pro').textContent  = isYearly ? '1,599' : '199';
+    // Pro: $4.99/mo · $39.99/yr ($3.33/mo effective, save 33%)
+    document.getElementById('price-pro').textContent  = isYearly ? '39.99' : '4.99';
     document.getElementById('period-pro').textContent = isYearly ? '/ year' : '/ month';
-    document.getElementById('note-pro').textContent   = isYearly ? '₹133/mo billed yearly · save ₹789' : 'Billed monthly · cancel anytime';
+    document.getElementById('note-pro').textContent   = isYearly ? '$3.33/mo billed yearly · save $19.89' : 'Billed monthly · cancel anytime';
 
-    // Crew: ₹399/mo · ₹3,199/yr (~₹266/mo effective, 33% off)
-    document.getElementById('price-crew').textContent  = isYearly ? '3,199' : '399';
+    // Crew: $9.99/mo · $79.99/yr ($6.67/mo effective, save 33%)
+    document.getElementById('price-crew').textContent  = isYearly ? '79.99' : '9.99';
     document.getElementById('period-crew').textContent = isYearly ? '/ year' : '/ month';
-    document.getElementById('note-crew').textContent   = isYearly ? '₹266/mo · up to 6 members' : 'Up to 6 members · one bill';
+    document.getElementById('note-crew').textContent   = isYearly ? '$6.67/mo · up to 6 members' : 'Up to 6 members · one bill';
   }
 
   function linkPartner(btn, name) {
