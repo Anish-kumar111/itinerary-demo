@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tripster · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#05070f; --bg-2:#0a0e1a;
+    --surface:rgba(255,255,255,0.04);
+    --surface-hi:rgba(255,255,255,0.08);
+    --surface-3:rgba(255,255,255,0.12);
+    --border:rgba(255,255,255,0.1);
+    --border-hi:rgba(255,255,255,0.18);
+    --text:#f5f7fa; --text-dim:#a0a8c0; --text-mute:#6a7390;
+    --blue:#3b82f6; --cyan:#06b6d4; --violet:#8b5cf6;
+    --pink:#ec4899; --green:#10b981; --amber:#f59e0b; --gold:#fbbf24; --red:#ef4444;
+  }
+  html,body {
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--bg); color:var(--text);
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+    min-height:100vh;
+  }
+  a { color:inherit; text-decoration:none; }
+  button,input,textarea { font-family:inherit; }
+
+  .aurora {
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 5%, rgba(59,130,246,0.18), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 15%, rgba(139,92,246,0.13), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 60% 100%, rgba(236,72,153,0.08), transparent 65%);
+    animation:auroraMove 22s ease-in-out infinite alternate;
+  }
+  @keyframes auroraMove {
+    0% { transform:translate(0,0) scale(1); }
+    100% { transform:translate(-4%,2%) scale(1.08); }
+  }
+  .noise {
+    position:fixed; inset:0; pointer-events:none; z-index:1; opacity:.04;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence baseFrequency='.9' numOctaves='3'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* ── App shell ── */
+  .shell { position:relative; z-index:2; display:grid; grid-template-columns:248px 1fr; min-height:100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    border-right:1px solid var(--border);
+    padding:20px 16px;
+    background:rgba(5,7,15,0.7);
+    backdrop-filter:blur(14px);
+    display:flex; flex-direction:column; gap:6px;
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+  }
+  .logo { display:flex; align-items:center; gap:10px; padding:6px 8px 18px; }
+  .logo-mark {
+    width:30px; height:30px; border-radius:9px;
+    background:linear-gradient(135deg,var(--blue),var(--violet) 60%,var(--pink));
+    box-shadow:0 0 20px rgba(139,92,246,.5);
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px;
+  }
+  .logo-name { font-weight:800; font-size:17px; letter-spacing:-.02em; }
+  .logo-tag {
+    font-family:'JetBrains Mono',monospace; font-size:9px;
+    padding:2px 6px; border-radius:4px;
+    background:var(--surface-hi); color:var(--text-mute);
+  }
+  .side-section {
+    font-size:10px; text-transform:uppercase; letter-spacing:.12em;
+    color:var(--text-mute); padding:14px 10px 6px;
+  }
+  .side-link {
+    display:flex; align-items:center; gap:11px;
+    padding:9px 10px; border-radius:9px;
+    font-size:13.5px; color:var(--text-dim);
+    cursor:pointer; transition:all .15s; border:1px solid transparent;
+  }
+  .side-link:hover { background:var(--surface); color:var(--text); }
+  .side-link.active {
+    background:linear-gradient(135deg,rgba(59,130,246,.16),rgba(139,92,246,.12));
+    color:var(--text); border-color:var(--border-hi);
+  }
+  .side-link .ico { width:18px; text-align:center; font-size:14px; }
+  .side-link .count {
+    margin-left:auto; font-size:10px;
+    background:var(--surface-hi); padding:1px 6px; border-radius:5px;
+    color:var(--text-mute); font-family:'JetBrains Mono',monospace;
+  }
+  .side-link.active .count { background:rgba(59,130,246,.25); color:#bfdbfe; }
+  .user-card {
+    margin-top:auto; display:flex; align-items:center; gap:10px;
+    padding:10px; border-radius:11px;
+    background:var(--surface); border:1px solid var(--border);
+  }
+  .avatar {
+    width:34px; height:34px; border-radius:50%;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:13px;
+  }
+  .user-name { font-weight:600; font-size:13px; }
+  .user-plan { font-size:11px; color:var(--text-mute); }
+
+  /* ── Topbar ── */
+  .topbar {
+    display:flex; align-items:center; gap:16px;
+    padding:18px 32px;
+    border-bottom:1px solid var(--border);
+    background:rgba(5,7,15,.5); backdrop-filter:blur(14px);
+    position:sticky; top:0; z-index:5;
+  }
+  .crumbs { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-mute); }
+  .crumbs strong { color:var(--text); font-weight:600; }
+  .crumbs .sep { opacity:.4; }
+  .top-right { margin-left:auto; display:flex; gap:10px; align-items:center; }
+  .search {
+    width:340px; padding:9px 14px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; color:var(--text); outline:none; font-size:13px;
+  }
+  .search:focus { border-color:var(--border-hi); background:var(--surface-hi); }
+  .btn {
+    padding:9px 14px; border-radius:10px; cursor:pointer;
+    font-size:13px; font-weight:600; transition:all .2s;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn-ghost { background:var(--surface); border:1px solid var(--border); color:var(--text); }
+  .btn-ghost:hover { background:var(--surface-hi); border-color:var(--border-hi); }
+  .btn-primary {
+    background:linear-gradient(135deg,var(--blue),var(--violet));
+    border:none; color:#fff;
+    box-shadow:0 4px 18px rgba(59,130,246,.3);
+  }
+  .btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 22px rgba(139,92,246,.4); }
+
+  /* ── Content ── */
+  .content { padding:28px 32px 80px; max-width:1280px; }
+
+  .h1 { font-size:26px; font-weight:800; letter-spacing:-.02em; margin-bottom:4px; }
+  .h1 .grad {
+    background:linear-gradient(110deg,#60a5fa 0%,#a78bfa 50%,#f472b6 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .sub { color:var(--text-dim); font-size:14px; margin-bottom:24px; }
+  .h2 {
+    font-size:14px; font-weight:700; letter-spacing:.02em;
+    text-transform:uppercase; color:var(--text-mute);
+    display:flex; align-items:center; gap:10px;
+    margin:36px 0 14px;
+  }
+  .h2 .ico { font-size:14px; opacity:.85; }
+  .h2 .h2-end { margin-left:auto; font-size:11px; font-weight:500; color:var(--text-mute); text-transform:none; }
+
+  /* ── Stats ── */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .stat {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:18px;
+    transition:all .2s;
+  }
+  .stat:hover { border-color:var(--border-hi); transform:translateY(-2px); }
+  .stat-label {
+    font-size:11px; color:var(--text-mute);
+    text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px;
+  }
+  .stat-val { font-size:26px; font-weight:800; letter-spacing:-.02em; }
+  .stat-foot { font-size:11px; color:var(--text-mute); margin-top:6px; }
+  .stat-foot.up { color:var(--green); }
+  .stat-foot.down { color:var(--red); }
+
+  /* ── Cards ── */
+  .card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:20px;
+    backdrop-filter:blur(8px);
+  }
+  .card-head {
+    display:flex; align-items:center; gap:10px; margin-bottom:14px;
+  }
+  .card-title { font-size:15px; font-weight:700; }
+  .card-tag {
+    margin-left:auto; font-size:10px; font-family:'JetBrains Mono',monospace;
+    padding:3px 8px; border-radius:5px;
+    background:var(--surface-hi); color:var(--text-mute);
+  }
+
+  /* ── Active trip ── */
+  .trip-row { display:grid; grid-template-columns:1.45fr 1fr; gap:18px; }
+  .trip-hero {
+    position:relative; overflow:hidden;
+    border-radius:16px;
+    border:1px solid var(--border-hi);
+    padding:22px;
+    background:
+      linear-gradient(135deg,rgba(59,130,246,.10),rgba(139,92,246,.06) 50%,rgba(236,72,153,.05)),
+      var(--surface);
+  }
+  .trip-hero::after {
+    content:""; position:absolute; right:-60px; top:-40px; width:240px; height:240px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(139,92,246,.18),transparent 70%);
+    pointer-events:none;
+  }
+  .trip-loc { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-mute); }
+  .trip-loc .pulse {
+    width:6px; height:6px; border-radius:50%;
+    background:var(--green); box-shadow:0 0 8px var(--green);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:.5; transform:scale(1.3); }
+  }
+  .trip-title { font-size:30px; font-weight:800; letter-spacing:-.02em; margin:8px 0; }
+  .trip-meta { display:flex; flex-wrap:wrap; gap:18px; color:var(--text-dim); font-size:13px; }
+  .trip-meta b { color:var(--text); font-weight:600; }
+  .day-pills {
+    display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;
+  }
+  .day-pill {
+    padding:8px 14px; border-radius:999px;
+    background:var(--surface-hi); border:1px solid var(--border);
+    font-size:12px; font-weight:600;
+    cursor:pointer; transition:all .15s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .day-pill:hover { border-color:var(--border-hi); }
+  .day-pill.on {
+    background:linear-gradient(135deg,var(--blue),var(--violet));
+    border-color:transparent;
+  }
+  .day-pill .num { font-family:'JetBrains Mono',monospace; opacity:.8; }
+  .day-list {
+    margin-top:18px; display:flex; flex-direction:column; gap:8px;
+  }
+  .day-item {
+    display:flex; gap:12px; align-items:flex-start;
+    padding:12px 14px; border-radius:10px;
+    background:rgba(255,255,255,.03); border:1px solid var(--border);
+    transition:all .15s;
+  }
+  .day-item:hover { background:var(--surface); border-color:var(--border-hi); }
+  .day-time {
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    color:var(--text-mute); padding-top:2px; min-width:50px;
+  }
+  .day-text { font-size:13.5px; }
+  .day-text b { color:var(--text); }
+  .day-text .where { color:var(--text-dim); margin-left:6px; font-size:12px; }
+  .day-citation {
+    margin-top:4px; font-size:10.5px; color:var(--text-mute);
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  /* ── Agent timeline ── */
+  .timeline { display:flex; flex-direction:column; gap:0; }
+  .tl-item {
+    display:flex; gap:12px; padding:8px 0; position:relative;
+  }
+  .tl-item::before {
+    content:""; position:absolute;
+    left:11px; top:24px; bottom:-8px;
+    width:1px; background:var(--border);
+  }
+  .tl-item:last-child::before { display:none; }
+  .tl-dot {
+    width:22px; height:22px; border-radius:50%;
+    flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700;
+    background:var(--surface-hi); border:1px solid var(--border);
+    z-index:1;
+  }
+  .tl-dot.done { background:var(--green); border-color:var(--green); color:#0a0e1a; }
+  .tl-dot.run {
+    background:var(--blue); border-color:var(--blue); color:#fff;
+    animation:dotPulse 1.2s infinite;
+  }
+  @keyframes dotPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.2); } }
+  .tl-body { flex:1; padding-top:1px; }
+  .tl-line { display:flex; align-items:center; gap:8px; font-size:13px; }
+  .tl-agent {
+    font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    padding:2px 7px; border-radius:5px; flex-shrink:0;
+  }
+  .tl-agent.orchestrator { background:rgba(59,130,246,.18); color:#93c5fd; }
+  .tl-agent.researcher   { background:rgba(139,92,246,.18); color:#c4b5fd; }
+  .tl-agent.planner      { background:rgba(6,182,212,.18); color:#67e8f9; }
+  .tl-agent.finance      { background:rgba(245,158,11,.18); color:#fcd34d; }
+  .tl-agent.booking      { background:rgba(16,185,129,.18); color:#6ee7b7; }
+  .tl-agent.langgraph    { background:rgba(236,72,153,.18); color:#f9a8d4; }
+  .tl-tool {
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    color:var(--text-dim);
+  }
+  .tl-meta { font-size:11px; color:var(--text-mute); margin-top:2px; }
+
+  /* ── Hotels (value-ranked) ── */
+  .hotels { display:flex; flex-direction:column; gap:12px; }
+  .hotel {
+    display:grid; grid-template-columns:84px 1fr auto; gap:16px; align-items:center;
+    padding:14px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; transition:all .2s; cursor:pointer;
+  }
+  .hotel:hover { border-color:var(--border-hi); background:var(--surface-hi); transform:translateY(-1px); }
+  .hotel.top { border-color:rgba(16,185,129,.4); background:linear-gradient(135deg,rgba(16,185,129,.06),var(--surface)); }
+  .hotel-thumb {
+    width:84px; height:84px; border-radius:11px;
+    background:linear-gradient(135deg,#1e293b,#334155);
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px;
+  }
+  .hotel-info .name { font-weight:700; font-size:15px; display:flex; align-items:center; gap:8px; }
+  .hotel-info .place { font-size:12px; color:var(--text-mute); margin-top:2px; }
+  .stars { color:var(--gold); font-size:12px; letter-spacing:1px; }
+  .signal-bars {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    margin-top:10px; max-width:340px;
+  }
+  .sig {
+    background:var(--surface-hi); border:1px solid var(--border);
+    border-radius:7px; padding:6px 8px;
+  }
+  .sig-label {
+    font-size:9px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--text-mute); margin-bottom:4px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .sig-label b { color:var(--text); font-family:'JetBrains Mono',monospace; font-weight:600; }
+  .sig-track { height:4px; border-radius:3px; background:rgba(255,255,255,.06); overflow:hidden; }
+  .sig-fill { height:100%; border-radius:3px; }
+  .sig-fill.creator { background:linear-gradient(90deg,var(--violet),var(--pink)); }
+  .sig-fill.visitor { background:linear-gradient(90deg,var(--cyan),var(--blue)); }
+  .sig-fill.price   { background:linear-gradient(90deg,var(--green),var(--cyan)); }
+  .rationale {
+    margin-top:8px; font-size:11.5px; color:var(--text-dim); line-height:1.5;
+    padding:6px 10px; border-left:2px solid var(--border-hi);
+  }
+  .hotel-price { text-align:right; }
+  .hotel-price .num { font-size:22px; font-weight:800; }
+  .hotel-price .unit { font-size:10px; color:var(--text-mute); margin-top:2px; }
+  .value-badge {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:3px 8px; border-radius:6px;
+    background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(6,182,212,.16));
+    border:1px solid rgba(16,185,129,.3);
+    font-size:10px; font-weight:700; font-family:'JetBrains Mono',monospace;
+    color:#6ee7b7;
+  }
+  .top-tag {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:2px 7px; border-radius:5px;
+    background:linear-gradient(135deg,var(--green),var(--cyan));
+    color:#0a0e1a;
+    font-size:9.5px; font-weight:800; letter-spacing:.04em;
+  }
+
+  /* ── Budget ── */
+  .budget-row { display:grid; grid-template-columns:1.2fr 1fr; gap:18px; }
+  .budget-head { display:flex; align-items:flex-end; gap:14px; margin-bottom:14px; }
+  .budget-spent { font-size:32px; font-weight:800; letter-spacing:-.02em; }
+  .budget-of { color:var(--text-mute); font-size:14px; padding-bottom:5px; }
+  .budget-cats { display:flex; flex-direction:column; gap:11px; }
+  .bcat-row { display:grid; grid-template-columns:1fr auto; gap:6px; }
+  .bcat-name { display:flex; align-items:center; gap:7px; font-size:13px; }
+  .bcat-name .swatch { width:9px; height:9px; border-radius:3px; }
+  .bcat-amt { font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--text-dim); }
+  .bcat-bar { grid-column:1 / -1; height:6px; border-radius:4px; background:rgba(255,255,255,.04); overflow:hidden; }
+  .bcat-fill { height:100%; border-radius:4px; }
+
+  /* ── Booking pair ── */
+  .book-pair { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .book {
+    border:1px solid var(--border); border-radius:14px; padding:18px;
+    background:var(--surface);
+    display:flex; flex-direction:column; gap:10px; min-height:220px;
+  }
+  .book.flight { background:linear-gradient(135deg,rgba(59,130,246,.08),var(--surface)); }
+  .book.hotel  { background:linear-gradient(135deg,rgba(16,185,129,.07),var(--surface)); }
+  .book-eyebrow {
+    display:flex; align-items:center; gap:8px;
+    font-size:11px; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--text-mute); font-weight:600;
+  }
+  .book-eyebrow .partner {
+    margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px;
+    padding:2px 7px; border-radius:5px; background:var(--surface-hi);
+  }
+  .route { display:flex; align-items:center; gap:12px; padding:6px 0; }
+  .route .iata { font-size:24px; font-weight:800; letter-spacing:.02em; }
+  .route .arrow { color:var(--text-mute); }
+  .route-sub { font-size:11px; color:var(--text-mute); font-family:'JetBrains Mono',monospace; }
+  .book-name { font-size:18px; font-weight:700; }
+  .book-rows { display:flex; flex-direction:column; gap:5px; font-size:12.5px; color:var(--text-dim); }
+  .book-rows b { color:var(--text); font-weight:600; }
+  .book-foot { display:flex; align-items:center; gap:10px; margin-top:auto; padding-top:8px; }
+  .book-foot .price { font-size:22px; font-weight:800; }
+  .book-foot .price .cur { font-size:12px; color:var(--text-mute); margin-left:2px; }
+  .book-cta {
+    margin-left:auto; padding:8px 14px; border-radius:10px;
+    font-size:12px; font-weight:700; cursor:pointer;
+    background:linear-gradient(135deg,var(--blue),var(--violet));
+    border:none; color:#fff; display:inline-flex; align-items:center; gap:6px;
+    transition:all .2s;
+  }
+  .book.hotel .book-cta { background:linear-gradient(135deg,var(--green),var(--cyan)); color:#04111a; }
+  .book-cta:hover { transform:translateY(-1px); }
+  .book-marker { font-size:10px; color:var(--text-mute); font-family:'JetBrains Mono',monospace; }
+
+  /* ── Discover ── */
+  .discover { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .disc-card {
+    border:1px solid var(--border); border-radius:13px; overflow:hidden;
+    background:var(--surface); transition:all .2s; cursor:pointer;
+  }
+  .disc-card:hover { border-color:var(--border-hi); transform:translateY(-2px); }
+  .disc-thumb {
+    aspect-ratio:16/9;
+    background:linear-gradient(135deg,#1e293b,#334155);
+    display:flex; align-items:center; justify-content:center;
+    font-size:38px; position:relative;
+  }
+  .disc-thumb .play {
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.3); color:#fff; font-size:20px;
+  }
+  .disc-thumb .ts {
+    position:absolute; right:8px; bottom:8px;
+    background:rgba(0,0,0,.7); padding:2px 6px; border-radius:4px;
+    font-family:'JetBrains Mono',monospace; font-size:10px;
+  }
+  .disc-body { padding:12px; }
+  .disc-title { font-size:13px; font-weight:600; line-height:1.4; }
+  .disc-meta { font-size:11px; color:var(--text-mute); margin-top:6px; display:flex; gap:8px; }
+  .disc-takeaway {
+    margin-top:8px; padding:7px 9px;
+    background:var(--surface-hi); border-left:2px solid var(--violet);
+    border-radius:5px; font-size:11.5px; color:var(--text-dim);
+  }
+
+  /* ── Saved trips ── */
+  .saved { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .saved-card {
+    border:1px solid var(--border); border-radius:13px;
+    background:var(--surface); padding:16px;
+    transition:all .2s; cursor:pointer;
+  }
+  .saved-card:hover { border-color:var(--border-hi); transform:translateY(-2px); }
+  .saved-flag { font-size:28px; }
+  .saved-title { font-weight:700; font-size:15px; margin:8px 0 4px; }
+  .saved-meta { font-size:12px; color:var(--text-mute); }
+  .saved-stats { display:flex; gap:12px; margin-top:10px; font-size:11px; color:var(--text-dim); }
+  .saved-stats span b { color:var(--text); font-weight:600; }
+
+  /* ── Compete ── */
+  .leaderboard { display:flex; flex-direction:column; gap:8px; }
+  .lb-row {
+    display:grid; grid-template-columns:32px 1fr auto auto; gap:12px; align-items:center;
+    padding:10px 14px; border-radius:11px;
+    background:var(--surface); border:1px solid var(--border);
+    transition:all .15s;
+  }
+  .lb-row:hover { border-color:var(--border-hi); }
+  .lb-row.me { border-color:var(--violet); background:linear-gradient(135deg,rgba(139,92,246,.1),var(--surface)); }
+  .lb-rank {
+    width:28px; height:28px; border-radius:7px;
+    background:var(--surface-hi); display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:12px; font-family:'JetBrains Mono',monospace;
+  }
+  .lb-row:nth-child(1) .lb-rank { background:linear-gradient(135deg,var(--gold),var(--amber)); color:#0a0e1a; }
+  .lb-row:nth-child(2) .lb-rank { background:linear-gradient(135deg,#cbd5e1,#94a3b8); color:#0a0e1a; }
+  .lb-row:nth-child(3) .lb-rank { background:linear-gradient(135deg,#d97706,#b45309); color:#fff; }
+  .lb-name { font-weight:600; font-size:13.5px; display:flex; align-items:center; gap:8px; }
+  .lb-trips { font-size:11.5px; color:var(--text-mute); }
+  .lb-xp {
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px;
+    color:var(--gold);
+  }
+
+  /* ── View switching ── */
+  .view { display:none; animation:viewIn .35s ease; }
+  .view.active { display:block; }
+  @keyframes viewIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── Tabs row ── */
+  .tabs-row {
+    display:flex; gap:8px; border-bottom:1px solid var(--border);
+    margin-bottom:22px; padding-bottom:0;
+  }
+  .tab {
+    padding:10px 16px; font-size:13px; font-weight:600;
+    color:var(--text-mute); cursor:pointer; border-bottom:2px solid transparent;
+    margin-bottom:-1px; transition:all .15s;
+  }
+  .tab:hover { color:var(--text-dim); }
+  .tab.on { color:var(--text); border-bottom-color:var(--violet); }
+
+  /* ── Filter chips ── */
+  .filter-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .fchip {
+    padding:7px 14px; border-radius:999px; font-size:12px;
+    background:var(--surface); border:1px solid var(--border);
+    color:var(--text-dim); cursor:pointer; transition:all .15s;
+  }
+  .fchip:hover { background:var(--surface-hi); color:var(--text); }
+  .fchip.on {
+    background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(139,92,246,.14));
+    border-color:var(--border-hi); color:var(--text);
+  }
+
+  /* ── Generic table ── */
+  .table {
+    width:100%; border-collapse:collapse;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; overflow:hidden;
+  }
+  .table th, .table td {
+    text-align:left; padding:12px 14px; font-size:13px;
+    border-bottom:1px solid var(--border);
+  }
+  .table th {
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--text-mute); font-weight:600;
+    background:rgba(255,255,255,.02);
+  }
+  .table tr:last-child td { border-bottom:none; }
+  .table tr:hover td { background:var(--surface); }
+  .table .mono { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-dim); }
+  .pill {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:3px 9px; border-radius:6px; font-size:11px; font-weight:600;
+  }
+  .pill.green  { background:rgba(16,185,129,.15); color:#6ee7b7; }
+  .pill.amber  { background:rgba(245,158,11,.15); color:#fcd34d; }
+  .pill.blue   { background:rgba(59,130,246,.15); color:#93c5fd; }
+  .pill.violet { background:rgba(139,92,246,.15); color:#c4b5fd; }
+  .pill.gray   { background:var(--surface-hi); color:var(--text-dim); }
+  .pill.red    { background:rgba(239,68,68,.15); color:#fca5a5; }
+
+  /* ── Discover (extended) ── */
+  .dest-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .dest-card {
+    border:1px solid var(--border); border-radius:13px;
+    background:var(--surface); padding:16px; cursor:pointer; transition:all .2s;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .dest-card:hover { border-color:var(--border-hi); transform:translateY(-2px); }
+  .dest-flag { font-size:30px; }
+  .dest-name { font-weight:700; font-size:15px; margin-top:6px; }
+  .dest-region { font-size:11px; color:var(--text-mute); }
+  .dest-stats {
+    display:flex; gap:10px; margin-top:8px;
+    font-size:11px; color:var(--text-dim);
+  }
+  .dest-stats b { color:var(--text); font-weight:600; }
+  .topic-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+  .topic {
+    padding:14px; border-radius:11px;
+    background:var(--surface); border:1px solid var(--border);
+    cursor:pointer; transition:all .2s;
+  }
+  .topic:hover { border-color:var(--border-hi); }
+  .topic .ico { font-size:22px; }
+  .topic .name { margin-top:6px; font-weight:600; font-size:13px; }
+  .topic .count { font-size:11px; color:var(--text-mute); margin-top:2px; }
+
+  /* ── Basket ── */
+  .basket-list { display:flex; flex-direction:column; gap:10px; }
+  .basket-item {
+    display:grid; grid-template-columns:auto 1fr auto auto; gap:14px; align-items:center;
+    padding:14px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; transition:all .15s;
+  }
+  .basket-item:hover { border-color:var(--border-hi); }
+  .basket-icon {
+    width:42px; height:42px; border-radius:10px;
+    background:var(--surface-hi); display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+  }
+  .basket-name { font-weight:600; font-size:14px; }
+  .basket-sub { font-size:11.5px; color:var(--text-mute); margin-top:3px; }
+  .basket-price { font-weight:700; font-size:15px; font-family:'JetBrains Mono',monospace; }
+  .basket-actions { display:flex; gap:6px; }
+  .iconbtn {
+    width:32px; height:32px; border-radius:8px; cursor:pointer;
+    background:var(--surface-hi); border:1px solid var(--border);
+    color:var(--text-dim); display:flex; align-items:center; justify-content:center;
+    transition:all .15s;
+  }
+  .iconbtn:hover { color:var(--text); border-color:var(--border-hi); }
+  .iconbtn.danger:hover { color:#fca5a5; border-color:rgba(239,68,68,.4); }
+  .basket-total {
+    display:flex; align-items:center; gap:14px; margin-top:14px;
+    padding:16px;
+    background:linear-gradient(135deg,rgba(59,130,246,.10),rgba(139,92,246,.08));
+    border:1px solid var(--border-hi); border-radius:12px;
+  }
+  .basket-total .lbl { font-size:13px; color:var(--text-dim); }
+  .basket-total .val { font-size:24px; font-weight:800; }
+  .basket-total .cta { margin-left:auto; }
+
+  /* ── Friends ── */
+  .friend-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .friend-card {
+    padding:18px; border-radius:14px;
+    background:var(--surface); border:1px solid var(--border);
+    transition:all .2s;
+  }
+  .friend-card:hover { border-color:var(--border-hi); }
+  .friend-head { display:flex; align-items:center; gap:12px; }
+  .friend-av {
+    width:46px; height:46px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:15px; position:relative;
+  }
+  .friend-av .online {
+    position:absolute; right:-2px; bottom:-2px;
+    width:12px; height:12px; border-radius:50%;
+    background:var(--green); border:2px solid var(--bg-2);
+  }
+  .friend-name { font-weight:700; font-size:14px; }
+  .friend-handle { font-size:11.5px; color:var(--text-mute); font-family:'JetBrains Mono',monospace; }
+  .friend-last { font-size:12px; color:var(--text-dim); margin-top:14px; }
+  .friend-actions { display:flex; gap:8px; margin-top:12px; }
+  .activity-feed { display:flex; flex-direction:column; gap:8px; }
+  .feed-item {
+    display:flex; gap:12px; align-items:center;
+    padding:11px 14px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:11px;
+  }
+  .feed-av {
+    width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:11px; flex-shrink:0;
+  }
+  .feed-text { font-size:13px; flex:1; }
+  .feed-text b { font-weight:700; }
+  .feed-time { font-size:11px; color:var(--text-mute); font-family:'JetBrains Mono',monospace; }
+
+  /* ── Compete ── */
+  .badges { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .badge {
+    padding:14px; border-radius:12px; text-align:center;
+    background:var(--surface); border:1px solid var(--border);
+    transition:all .2s;
+  }
+  .badge:hover { border-color:var(--border-hi); transform:translateY(-2px); }
+  .badge.locked { opacity:.4; }
+  .badge .ico { font-size:30px; }
+  .badge .name { font-weight:700; font-size:12.5px; margin-top:6px; }
+  .badge .desc { font-size:10.5px; color:var(--text-mute); margin-top:2px; line-height:1.4; }
+  .challenges { display:flex; flex-direction:column; gap:10px; }
+  .ch-item {
+    padding:14px; border-radius:11px;
+    background:var(--surface); border:1px solid var(--border);
+  }
+  .ch-head { display:flex; align-items:center; gap:8px; }
+  .ch-name { font-weight:700; font-size:13.5px; flex:1; }
+  .ch-reward { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold); }
+  .ch-progress {
+    margin-top:10px; height:6px; border-radius:4px;
+    background:rgba(255,255,255,.05); overflow:hidden;
+  }
+  .ch-progress .bar {
+    height:100%; background:linear-gradient(90deg,var(--violet),var(--pink));
+  }
+  .ch-meta { display:flex; justify-content:space-between; font-size:11px; color:var(--text-mute); margin-top:6px; }
+
+  /* ── Billing ── */
+  .plans { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .plan {
+    padding:22px; border-radius:14px;
+    background:var(--surface); border:1px solid var(--border);
+    display:flex; flex-direction:column; gap:10px;
+    transition:all .2s; position:relative;
+  }
+  .plan:hover { border-color:var(--border-hi); }
+  .plan.current { border-color:var(--violet); background:linear-gradient(135deg,rgba(139,92,246,.08),var(--surface)); }
+  .plan.featured {
+    border-color:var(--blue);
+    background:linear-gradient(135deg,rgba(59,130,246,.10),rgba(139,92,246,.08));
+  }
+  .plan-tag {
+    position:absolute; top:-10px; right:14px;
+    padding:3px 10px; border-radius:5px; font-size:10px; font-weight:700;
+    background:linear-gradient(135deg,var(--blue),var(--violet)); color:#fff;
+  }
+  .plan-name { font-size:14px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; }
+  .plan-price { font-size:32px; font-weight:800; letter-spacing:-.02em; }
+  .plan-price small { font-size:14px; color:var(--text-mute); font-weight:500; }
+  .plan-feat { font-size:13px; color:var(--text-dim); display:flex; align-items:flex-start; gap:8px; padding:3px 0; }
+  .plan-feat .check { color:var(--green); font-weight:700; }
+  .plan-cta {
+    margin-top:auto; padding:10px; border-radius:10px;
+    font-size:13px; font-weight:600; cursor:pointer; text-align:center;
+    transition:all .2s;
+  }
+  .plan-cta.primary { background:linear-gradient(135deg,var(--blue),var(--violet)); color:#fff; border:none; }
+  .plan-cta.ghost { background:var(--surface-hi); border:1px solid var(--border); color:var(--text); }
+  .plan-cta.ghost:hover { background:var(--surface-3); }
+
+  /* ── Settings ── */
+  .settings-grid { display:grid; grid-template-columns:1fr; gap:14px; max-width:760px; }
+  .field-row {
+    display:grid; grid-template-columns:200px 1fr; gap:18px; align-items:center;
+    padding:14px 0; border-bottom:1px solid var(--border);
+  }
+  .field-row:last-child { border-bottom:none; }
+  .field-label { font-size:13px; font-weight:600; }
+  .field-help { font-size:11.5px; color:var(--text-mute); margin-top:3px; }
+  .input, .select {
+    padding:9px 12px; border-radius:9px;
+    background:var(--surface-hi); border:1px solid var(--border);
+    color:var(--text); font-size:13px; outline:none; width:100%;
+  }
+  .input:focus, .select:focus { border-color:var(--border-hi); background:var(--surface-3); }
+  .toggle {
+    width:40px; height:22px; border-radius:999px;
+    background:var(--surface-hi); border:1px solid var(--border);
+    position:relative; cursor:pointer; transition:all .2s;
+  }
+  .toggle::after {
+    content:""; position:absolute; left:2px; top:1px;
+    width:18px; height:18px; border-radius:50%;
+    background:var(--text-dim); transition:all .2s;
+  }
+  .toggle.on { background:linear-gradient(135deg,var(--blue),var(--violet)); border-color:transparent; }
+  .toggle.on::after { left:20px; background:#fff; }
+  .danger-zone {
+    margin-top:30px; padding:18px; border-radius:12px;
+    border:1px solid rgba(239,68,68,.3); background:rgba(239,68,68,.04);
+  }
+  .danger-zone .h { color:#fca5a5; font-weight:700; font-size:13px; margin-bottom:10px; }
+  .danger-zone .desc { font-size:12px; color:var(--text-dim); margin-bottom:12px; }
+  .btn-danger {
+    background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.4);
+    color:#fca5a5; padding:8px 14px; border-radius:9px; font-size:12px; cursor:pointer;
+  }
+  .btn-danger:hover { background:rgba(239,68,68,.2); }
+
+  /* ── Empty / placeholder ── */
+  .empty {
+    text-align:center; padding:60px 20px;
+    color:var(--text-mute);
+  }
+  .empty .ico { font-size:42px; margin-bottom:12px; opacity:.5; }
+  .empty .h { font-size:15px; color:var(--text-dim); font-weight:600; }
+  .empty .sub { font-size:13px; margin-top:6px; }
+
+  @media (max-width:1080px) {
+    .shell { grid-template-columns:1fr; }
+    .sidebar { display:none; }
+    .stats { grid-template-columns:repeat(2,1fr); }
+    .trip-row, .budget-row, .book-pair { grid-template-columns:1fr; }
+    .discover, .saved { grid-template-columns:1fr; }
+    .search { width:auto; flex:1; }
+  }
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+<div class="noise"></div>
+
+<div class="shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">✦</div>
+      <span class="logo-name">Tripster</span>
+      <span class="logo-tag">v0.1</span>
+    </div>
+
+    <a href="index.html" class="side-link"><span class="ico">←</span><span>Back to chat</span></a>
+
+    <div class="side-section">Workspace</div>
+    <div class="side-link active" data-tab="trips"><span class="ico">🗺️</span><span>My Trips</span><span class="count">3</span></div>
+    <div class="side-link" data-tab="discover"><span class="ico">📺</span><span>Discover</span><span class="count">12</span></div>
+    <div class="side-link" data-tab="bookings"><span class="ico">🎟️</span><span>Bookings</span><span class="count">2</span></div>
+    <div class="side-link" data-tab="basket"><span class="ico">🧺</span><span>Basket</span><span class="count">5</span></div>
+
+    <div class="side-section">Social</div>
+    <div class="side-link" data-tab="friends"><span class="ico">👥</span><span>Friends</span><span class="count">8</span></div>
+    <div class="side-link" data-tab="compete"><span class="ico">🏆</span><span>Compete</span></div>
+
+    <div class="side-section">Account</div>
+    <div class="side-link" data-tab="billing"><span class="ico">💳</span><span>Billing</span></div>
+    <div class="side-link" data-tab="settings"><span class="ico">⚙️</span><span>Settings</span></div>
+
+    <div class="user-card">
+      <div class="avatar">SK</div>
+      <div>
+        <div class="user-name">Sam Kumar</div>
+        <div class="user-plan">Free · 2 of 3 trips</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div>
+    <header class="topbar">
+      <div class="crumbs">
+        <span>Workspace</span><span class="sep">/</span>
+        <strong id="crumb-section">My Trips</strong><span class="sep">/</span>
+        <span id="crumb-trip">Bali · 5 days</span>
+      </div>
+      <div class="top-right">
+        <input class="search" placeholder="Search trips, places, hotels…" />
+        <a href="index.html" class="btn btn-primary"><span>+</span><span>New trip</span></a>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <!-- VIEW: My Trips                                                -->
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <section class="view active" data-view="trips">
+
+      <!-- ── Greeting ── -->
+      <div class="h1">Welcome back, <span class="grad">Sam</span></div>
+      <div class="sub" id="greet">Picking up where you left off — your Bali plan is 4 of 5 stages complete.</div>
+
+      <!-- ── Stats ── -->
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Trips planned</div>
+          <div class="stat-val">3</div>
+          <div class="stat-foot up">↑ 1 this week</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Money saved</div>
+          <div class="stat-val">$284</div>
+          <div class="stat-foot up">vs. avg booking-site price</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Days traveled</div>
+          <div class="stat-val">12</div>
+          <div class="stat-foot">across 3 countries</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Compete XP</div>
+          <div class="stat-val">2,140</div>
+          <div class="stat-foot up">↑ 320 this week · rank 3</div>
+        </div>
+      </div>
+
+      <!-- ── Active trip + Agent timeline ── -->
+      <div class="h2"><span class="ico">🌴</span> Active trip <span class="h2-end">stage 3 of 4 · build &amp; render</span></div>
+
+      <div class="trip-row">
+        <!-- Trip hero + day plan -->
+        <div class="trip-hero">
+          <div class="trip-loc"><span class="pulse"></span> BALI · INDONESIA · MAY 5 → MAY 9</div>
+          <div class="trip-title"><span class="grad" id="trip-title-grad">5 days in Bali</span></div>
+          <div class="trip-meta">
+            <span><b>2</b> travelers</span>
+            <span><b>$600</b> budget</span>
+            <span><b>BLR → DPS</b></span>
+            <span>vibes: <b>beaches · street food</b></span>
+          </div>
+          <div class="day-pills">
+            <div class="day-pill on" data-day="1"><span class="num">D1</span> Arrive · Seminyak</div>
+            <div class="day-pill" data-day="2"><span class="num">D2</span> Uluwatu cliffs</div>
+            <div class="day-pill" data-day="3"><span class="num">D3</span> Ubud</div>
+            <div class="day-pill" data-day="4"><span class="num">D4</span> Nusa Penida</div>
+            <div class="day-pill" data-day="5"><span class="num">D5</span> Beach &amp; depart</div>
+          </div>
+
+          <div class="day-list" id="day-list">
+            <!-- populated by JS based on selected day -->
+          </div>
+        </div>
+
+        <!-- Agent activity timeline -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Agent activity</div>
+            <span class="card-tag">live</span>
+          </div>
+          <div class="timeline" id="timeline">
+            <div class="tl-item">
+              <div class="tl-dot done">✓</div>
+              <div class="tl-body">
+                <div class="tl-line"><span class="tl-agent orchestrator">orchestrator</span> <span>Slot-filling complete · 6 slots resolved</span></div>
+                <div class="tl-meta">destination, dates, party, budget, origin, vibes — 0.4s</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot done">✓</div>
+              <div class="tl-body">
+                <div class="tl-line"><span class="tl-agent researcher">researcher</span> <span class="tl-tool">research_destination()</span></div>
+                <div class="tl-meta">LangGraph subgraph · 4 nodes · 24 candidates → 12 ranked</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot done">✓</div>
+              <div class="tl-body">
+                <div class="tl-line"><span class="tl-agent langgraph">langgraph</span> <span class="tl-tool">youbuddy → reviews ∥ yt_pulse → synthesize</span></div>
+                <div class="tl-meta">YouBuddy 4.2s · reviews 1.1s · yt_pulse 1.4s · synth 0.6s</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot done">✓</div>
+              <div class="tl-body">
+                <div class="tl-line"><span class="tl-agent finance">finance</span> <span class="tl-tool">check_budget()</span></div>
+                <div class="tl-meta">Lodging 35% · Flights 30% · Food 15% · Activities 12% · Transport 5% · Buffer 3%</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot done">✓</div>
+              <div class="tl-body">
+                <div class="tl-line"><span class="tl-agent planner">planner</span> <span>Day-by-day itinerary built</span></div>
+                <div class="tl-meta">5 days · 14 places · 3 hotel zones</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot run">●</div>
+              <div class="tl-body">
+                <div class="tl-line"><span class="tl-agent booking">booking</span> <span class="tl-tool">find_value_hotels()</span></div>
+                <div class="tl-meta">Scoring 30 candidates · creator + visitor + price-fit · 2-of-3 gate</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot">○</div>
+              <div class="tl-body">
+                <div class="tl-line"><span class="tl-agent booking">booking</span> <span class="tl-tool">build_link(flight)</span> · <span class="tl-tool">build_link(hotel)</span></div>
+                <div class="tl-meta">Travelpayouts deep-links with marker</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Hotel value ranking ── -->
+      <div class="h2"><span class="ico">🏨</span> Hotels · best value <span class="h2-end">scored on creator · visitor · price-fit</span></div>
+
+      <div class="hotels" id="hotels">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- ── Budget allocation ── -->
+      <div class="h2"><span class="ico">💰</span> Budget allocation <span class="h2-end">finance sub-agent · USD</span></div>
+
+      <div class="budget-row">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Spend so far</div>
+            <span class="card-tag">live</span>
+          </div>
+          <div class="budget-head">
+            <div class="budget-spent">$432</div>
+            <div class="budget-of">/ $600 budget</div>
+          </div>
+          <div class="bcat-bar">
+            <div class="bcat-fill" style="width:72%; background:linear-gradient(90deg,var(--blue),var(--violet));"></div>
+          </div>
+          <div class="budget-cats" style="margin-top:18px;">
+            <div class="bcat-row">
+              <div class="bcat-name"><span class="swatch" style="background:var(--violet);"></span> Lodging · 4 nights</div>
+              <div class="bcat-amt">$192 / $210</div>
+              <div class="bcat-bar"><div class="bcat-fill" style="width:91%; background:var(--violet);"></div></div>
+            </div>
+            <div class="bcat-row">
+              <div class="bcat-name"><span class="swatch" style="background:var(--blue);"></span> Flights · BLR ↔ DPS</div>
+              <div class="bcat-amt">$189 / $180</div>
+              <div class="bcat-bar"><div class="bcat-fill" style="width:100%; background:linear-gradient(90deg,var(--blue),var(--amber));"></div></div>
+            </div>
+            <div class="bcat-row">
+              <div class="bcat-name"><span class="swatch" style="background:var(--cyan);"></span> Food · 5 days</div>
+              <div class="bcat-amt">$0 / $90</div>
+              <div class="bcat-bar"><div class="bcat-fill" style="width:0%; background:var(--cyan);"></div></div>
+            </div>
+            <div class="bcat-row">
+              <div class="bcat-name"><span class="swatch" style="background:var(--green);"></span> Activities</div>
+              <div class="bcat-amt">$45 / $72</div>
+              <div class="bcat-bar"><div class="bcat-fill" style="width:62%; background:var(--green);"></div></div>
+            </div>
+            <div class="bcat-row">
+              <div class="bcat-name"><span class="swatch" style="background:var(--amber);"></span> Local transport</div>
+              <div class="bcat-amt">$6 / $30</div>
+              <div class="bcat-bar"><div class="bcat-fill" style="width:20%; background:var(--amber);"></div></div>
+            </div>
+            <div class="bcat-row">
+              <div class="bcat-name"><span class="swatch" style="background:var(--text-mute);"></span> Buffer</div>
+              <div class="bcat-amt">$0 / $18</div>
+              <div class="bcat-bar"><div class="bcat-fill" style="width:0%; background:var(--text-mute);"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Currency &amp; conversion</div>
+            <span class="card-tag">open.er-api</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px; padding-top:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--surface-hi); border-radius:9px;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:13px;">USD</span>
+              <span style="color:var(--text-mute);">→</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:13px;">IDR</span>
+              <span style="font-weight:700; font-size:14px; margin-left:auto;">16,422</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--surface-hi); border-radius:9px;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:13px;">USD</span>
+              <span style="color:var(--text-mute);">→</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:13px;">INR</span>
+              <span style="font-weight:700; font-size:14px; margin-left:auto;">83.4</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-mute); padding-top:4px; border-top:1px solid var(--border);">
+              Mid-market rate · refreshed 14 min ago
+            </div>
+            <div style="font-size:12px; color:var(--text-dim); line-height:1.5; padding:10px; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); border-radius:9px;">
+              <b style="color:var(--amber);">Heads up</b> · flight came in $9 over the allocated band. Finance suggests trimming activities by $9 or accepting the overrun.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Booking — separate flight + hotel ── -->
+      <div class="h2"><span class="ico">🎟️</span> Ready to book <span class="h2-end">two separate affiliate links · book independently</span></div>
+
+      <div class="book-pair">
+        <div class="book flight">
+          <div class="book-eyebrow">
+            <span>✈️ Flight</span>
+            <span class="partner">aviasales / TP</span>
+          </div>
+          <div class="route">
+            <div>
+              <div class="iata">BLR</div>
+              <div class="route-sub">Bengaluru · 23:45</div>
+            </div>
+            <span class="arrow">→</span>
+            <div>
+              <div class="iata">DPS</div>
+              <div class="route-sub">Denpasar · 07:20+1</div>
+            </div>
+          </div>
+          <div class="book-rows">
+            <div><b>AirAsia + Garuda</b> · 1 stop in KUL · 11h 35m total</div>
+            <div>Return: <b>DPS → BLR</b> · May 9 · 14:10 → 21:55</div>
+            <div>Baggage: 7kg cabin · 23kg check-in (return only)</div>
+          </div>
+          <div class="book-foot">
+            <div class="price">$189<span class="cur">USD</span></div>
+            <a class="book-cta" id="book-flight" href="#" target="_blank" rel="noopener">Book on Aviasales <span>→</span></a>
+          </div>
+          <div class="book-marker">marker=tripster_a8c · separate from hotel link</div>
+        </div>
+
+        <div class="book hotel">
+          <div class="book-eyebrow">
+            <span>🏨 Hotel</span>
+            <span class="partner">hotellook / TP</span>
+          </div>
+          <div class="book-name">The Akmani Legian</div>
+          <div class="route-sub" style="margin-top:-4px;">Legian · Bali · 0.4 km from beach</div>
+          <div class="book-rows">
+            <div><b>★ 4.5</b> · 2,142 reviews · pool · breakfast · free Wi-Fi</div>
+            <div>Check-in <b>May 5</b> · check-out <b>May 9</b> · 4 nights</div>
+            <div>2 adults · 1 deluxe double room</div>
+          </div>
+          <div class="book-foot">
+            <div class="price">$192<span class="cur">USD</span></div>
+            <a class="book-cta" id="book-hotel" href="#" target="_blank" rel="noopener">Book on Hotellook <span>→</span></a>
+          </div>
+          <div class="book-marker">marker=tripster_a8c · separate from flight link</div>
+        </div>
+      </div>
+
+      <!-- ── Saved trips ── -->
+      <div class="h2"><span class="ico">📁</span> Saved trips</div>
+
+      <div class="saved">
+        <div class="saved-card">
+          <div class="saved-flag">🇮🇳</div>
+          <div class="saved-title">Spiti Valley bike trip</div>
+          <div class="saved-meta">7 days · solo · $300</div>
+          <div class="saved-stats">
+            <span>Status: <b>booked</b></span>
+            <span>Saved <b>$110</b></span>
+            <span>XP <b>+450</b></span>
+          </div>
+        </div>
+        <div class="saved-card">
+          <div class="saved-flag">🇹🇭</div>
+          <div class="saved-title">Bangkok food crawl</div>
+          <div class="saved-meta">4 days · 2 people · $350</div>
+          <div class="saved-stats">
+            <span>Status: <b>completed</b></span>
+            <span>Saved <b>$78</b></span>
+            <span>XP <b>+620</b></span>
+          </div>
+        </div>
+        <div class="saved-card">
+          <div class="saved-flag">🇮🇳</div>
+          <div class="saved-title">Goa weekend</div>
+          <div class="saved-meta">3 days · 4 people · $150</div>
+          <div class="saved-stats">
+            <span>Status: <b>completed</b></span>
+            <span>Saved <b>$42</b></span>
+            <span>XP <b>+280</b></span>
+          </div>
+        </div>
+      </div>
+
+      </section> <!-- /trips -->
+
+
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <!-- VIEW: Discover                                                -->
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <section class="view" data-view="discover">
+        <div class="h1">Discover · <span class="grad">creator-first research</span></div>
+        <div class="sub">Synthesized from YouBuddy summaries, Google reviews, and YouTube comment sentiment — same triangulation the Researcher sub-agent uses.</div>
+
+        <div class="filter-row">
+          <div class="fchip on">All</div>
+          <div class="fchip">Beaches</div>
+          <div class="fchip">Mountains</div>
+          <div class="fchip">Food</div>
+          <div class="fchip">Heritage</div>
+          <div class="fchip">Adventure</div>
+          <div class="fchip">Honeymoon</div>
+          <div class="fchip">Hidden gems</div>
+        </div>
+
+        <div class="h2"><span class="ico">📺</span> YouBuddy feed <span class="h2-end">12 freshly indexed · sorted by 2-of-3 signal strength</span></div>
+        <div class="discover">
+          <div class="disc-card">
+            <div class="disc-thumb">🌅<div class="play">▶</div><div class="ts">12:48</div></div>
+            <div class="disc-body">
+              <div class="disc-title">Why Uluwatu beats Kuta in 2026</div>
+              <div class="disc-meta"><span>@nomad-emily</span> · <span>4.2M views</span> · <span class="pill green">2-of-3 ✓</span></div>
+              <div class="disc-takeaway">Single Fin sunset session at 18:30 · skip Kuta entirely · Padang Padang Beach at low tide.</div>
+            </div>
+          </div>
+          <div class="disc-card">
+            <div class="disc-thumb">🍜<div class="play">▶</div><div class="ts">04:32</div></div>
+            <div class="disc-body">
+              <div class="disc-title">Best $3 meals on Jalan Kayu Aya</div>
+              <div class="disc-meta"><span>@indo-eats</span> · <span>820k views</span> · <span class="pill green">3-of-3 ✓</span></div>
+              <div class="disc-takeaway">Warung Eny for nasi campur · Babi Guling Pak Malen on Sunset Rd · skip resort buffets.</div>
+            </div>
+          </div>
+          <div class="disc-card">
+            <div class="disc-thumb">🏝️<div class="play">▶</div><div class="ts">09:16</div></div>
+            <div class="disc-body">
+              <div class="disc-title">Nusa Penida day-trip · the honest version</div>
+              <div class="disc-meta"><span>@two-passports</span> · <span>1.8M views</span> · <span class="pill green">3-of-3 ✓</span></div>
+              <div class="disc-takeaway">Charter private driver · Kelingking before 9am or after 4pm · skip Diamond Beach.</div>
+            </div>
+          </div>
+          <div class="disc-card">
+            <div class="disc-thumb">🛕<div class="play">▶</div><div class="ts">15:22</div></div>
+            <div class="disc-body">
+              <div class="disc-title">Spiti circuit on a Royal Enfield</div>
+              <div class="disc-meta"><span>@himalayan-rider</span> · <span>2.1M views</span> · <span class="pill green">2-of-3 ✓</span></div>
+              <div class="disc-takeaway">Manali → Kaza in 2 days · Chandratal camp under stars · acclimatize at Kalpa first.</div>
+            </div>
+          </div>
+          <div class="disc-card">
+            <div class="disc-thumb">🍢<div class="play">▶</div><div class="ts">06:54</div></div>
+            <div class="disc-body">
+              <div class="disc-title">Bangkok street food without the tourist tax</div>
+              <div class="disc-meta"><span>@mark-wiens</span> · <span>11M views</span> · <span class="pill green">3-of-3 ✓</span></div>
+              <div class="disc-takeaway">Yaowarat after 19:00 · Wattana Panich beef noodles · go cashless-skeptical.</div>
+            </div>
+          </div>
+          <div class="disc-card">
+            <div class="disc-thumb">🏖️<div class="play">▶</div><div class="ts">08:40</div></div>
+            <div class="disc-body">
+              <div class="disc-title">Goa beaches ranked, north to south</div>
+              <div class="disc-meta"><span>@coastal-india</span> · <span>640k views</span> · <span class="pill amber">2-of-3 △</span></div>
+              <div class="disc-takeaway">Arambol > Ashvem > Morjim · skip Baga + Calangute · shacks reopen Oct 15.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">🌍</span> Trending destinations <span class="h2-end">based on 90-day creator volume + visitor sentiment</span></div>
+        <div class="dest-grid">
+          <div class="dest-card">
+            <div class="dest-flag">🇮🇩</div>
+            <div class="dest-name">Bali</div>
+            <div class="dest-region">Indonesia · Southeast Asia</div>
+            <div class="dest-stats"><span>creators <b>142</b></span><span>avg <b>$580</b></span><span>★ <b>4.6</b></span></div>
+          </div>
+          <div class="dest-card">
+            <div class="dest-flag">🇯🇵</div>
+            <div class="dest-name">Tokyo</div>
+            <div class="dest-region">Japan · East Asia</div>
+            <div class="dest-stats"><span>creators <b>312</b></span><span>avg <b>$1.4k</b></span><span>★ <b>4.8</b></span></div>
+          </div>
+          <div class="dest-card">
+            <div class="dest-flag">🇮🇳</div>
+            <div class="dest-name">Spiti Valley</div>
+            <div class="dest-region">India · Himalaya</div>
+            <div class="dest-stats"><span>creators <b>58</b></span><span>avg <b>$320</b></span><span>★ <b>4.7</b></span></div>
+          </div>
+          <div class="dest-card">
+            <div class="dest-flag">🇹🇭</div>
+            <div class="dest-name">Bangkok</div>
+            <div class="dest-region">Thailand · Southeast Asia</div>
+            <div class="dest-stats"><span>creators <b>198</b></span><span>avg <b>$420</b></span><span>★ <b>4.5</b></span></div>
+          </div>
+          <div class="dest-card">
+            <div class="dest-flag">🇲🇻</div>
+            <div class="dest-name">Maldives</div>
+            <div class="dest-region">Indian Ocean</div>
+            <div class="dest-stats"><span>creators <b>74</b></span><span>avg <b>$2.4k</b></span><span>★ <b>4.9</b></span></div>
+          </div>
+          <div class="dest-card">
+            <div class="dest-flag">🇻🇳</div>
+            <div class="dest-name">Hanoi</div>
+            <div class="dest-region">Vietnam · Southeast Asia</div>
+            <div class="dest-stats"><span>creators <b>89</b></span><span>avg <b>$380</b></span><span>★ <b>4.6</b></span></div>
+          </div>
+          <div class="dest-card">
+            <div class="dest-flag">🇪🇸</div>
+            <div class="dest-name">Lisbon</div>
+            <div class="dest-region">Portugal · Iberia</div>
+            <div class="dest-stats"><span>creators <b>116</b></span><span>avg <b>$1.1k</b></span><span>★ <b>4.7</b></span></div>
+          </div>
+          <div class="dest-card">
+            <div class="dest-flag">🇦🇪</div>
+            <div class="dest-name">Dubai</div>
+            <div class="dest-region">UAE · Middle East</div>
+            <div class="dest-stats"><span>creators <b>164</b></span><span>avg <b>$1.6k</b></span><span>★ <b>4.4</b></span></div>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">🏷️</span> Topics</div>
+        <div class="topic-grid">
+          <div class="topic"><div class="ico">🏖️</div><div class="name">Beaches</div><div class="count">214 places</div></div>
+          <div class="topic"><div class="ico">🏔️</div><div class="name">Mountains</div><div class="count">156 places</div></div>
+          <div class="topic"><div class="ico">🍜</div><div class="name">Street food</div><div class="count">389 places</div></div>
+          <div class="topic"><div class="ico">🛕</div><div class="name">Heritage</div><div class="count">271 places</div></div>
+          <div class="topic"><div class="ico">🎒</div><div class="name">Backpacker</div><div class="count">132 places</div></div>
+        </div>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <!-- VIEW: Bookings                                                -->
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <section class="view" data-view="bookings">
+        <div class="h1">Bookings</div>
+        <div class="sub">Each booking is a separate Travelpayouts deep-link with its own marker. Commissions reconcile nightly.</div>
+
+        <div class="tabs-row">
+          <div class="tab on" data-bk-tab="active">Active <span class="pill blue" style="margin-left:6px;">2</span></div>
+          <div class="tab" data-bk-tab="past">Past <span class="pill gray" style="margin-left:6px;">5</span></div>
+          <div class="tab" data-bk-tab="cancelled">Cancelled <span class="pill gray" style="margin-left:6px;">1</span></div>
+        </div>
+
+        <div class="h2"><span class="ico">🎟️</span> Active bookings <span class="h2-end">click marker to view in Travelpayouts dashboard</span></div>
+        <table class="table">
+          <thead><tr>
+            <th style="width:120px;">Type</th><th>Item</th><th>Dates</th><th>Partner</th><th>Marker</th><th>Amount</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="pill blue">✈️ Flight</span></td>
+              <td><b>BLR ↔ DPS</b><br><span class="mono">AirAsia + Garuda · 1 stop KUL</span></td>
+              <td>May 5 → May 9</td>
+              <td>Aviasales</td>
+              <td class="mono">tripster_a8c</td>
+              <td><b>$189</b></td>
+              <td><span class="pill amber">⏳ Pending click</span></td>
+            </tr>
+            <tr>
+              <td><span class="pill green">🏨 Hotel</span></td>
+              <td><b>The Akmani Legian</b><br><span class="mono">4.5★ · Legian, Bali · 4 nights</span></td>
+              <td>May 5 → May 9</td>
+              <td>Hotellook</td>
+              <td class="mono">tripster_a8c</td>
+              <td><b>$192</b></td>
+              <td><span class="pill amber">⏳ Pending click</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="h2"><span class="ico">📜</span> Past bookings</div>
+        <table class="table">
+          <thead><tr>
+            <th style="width:120px;">Type</th><th>Item</th><th>Dates</th><th>Partner</th><th>Amount</th><th>Commission</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="pill blue">✈️ Flight</span></td><td><b>DEL ↔ BKK</b></td><td>Mar 12 → Mar 16</td>
+              <td>Aviasales</td><td>$284</td><td class="mono">$5.68</td><td><span class="pill green">✓ Paid</span>
+            </td></tr>
+            <tr>
+              <td><span class="pill green">🏨 Hotel</span></td><td><b>Asai Bangkok Chinatown</b></td><td>Mar 12 → Mar 16</td>
+              <td>Hotellook</td><td>$148</td><td class="mono">$10.36</td><td><span class="pill green">✓ Paid</span>
+            </td></tr>
+            <tr>
+              <td><span class="pill blue">✈️ Flight</span></td><td><b>DEL → KUU</b></td><td>Aug 22 → Aug 29</td>
+              <td>Aviasales</td><td>$112</td><td class="mono">$2.24</td><td><span class="pill green">✓ Paid</span>
+            </td></tr>
+            <tr>
+              <td><span class="pill green">🏨 Hotel</span></td><td><b>The Himalayan Brothers, Kaza</b></td><td>Aug 24 → Aug 27</td>
+              <td>Hotellook</td><td>$92</td><td class="mono">$6.44</td><td><span class="pill green">✓ Paid</span>
+            </td></tr>
+            <tr>
+              <td><span class="pill violet">🎯 Activity</span></td><td><b>Goa scuba half-day</b></td><td>Dec 28</td>
+              <td>Viator</td><td>$48</td><td class="mono">$3.36</td><td><span class="pill green">✓ Paid</span>
+            </td></tr>
+          </tbody>
+        </table>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <!-- VIEW: Basket                                                  -->
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <section class="view" data-view="basket">
+        <div class="h1">Basket</div>
+        <div class="sub">Items you pinned from chat that haven't been booked yet. Nothing here charges you — these are just saved candidates.</div>
+
+        <div class="basket-list">
+          <div class="basket-item">
+            <div class="basket-icon">🏨</div>
+            <div>
+              <div class="basket-name">Frii Bali Echo Beach <span class="pill violet" style="margin-left:6px;">alt to Akmani</span></div>
+              <div class="basket-sub">Canggu · 4 nights · value 0.83 · creator 0.78 · visitor 0.74</div>
+            </div>
+            <div class="basket-price">$180</div>
+            <div class="basket-actions">
+              <div class="iconbtn" title="Book now">→</div>
+              <div class="iconbtn danger" title="Remove">✕</div>
+            </div>
+          </div>
+          <div class="basket-item">
+            <div class="basket-icon">🎟️</div>
+            <div>
+              <div class="basket-name">Uluwatu Kecak Fire Dance · 18:00</div>
+              <div class="basket-sub">Day 2 · 2 adults · creator-recommended by @nomad-emily</div>
+            </div>
+            <div class="basket-price">$20</div>
+            <div class="basket-actions">
+              <div class="iconbtn">→</div>
+              <div class="iconbtn danger">✕</div>
+            </div>
+          </div>
+          <div class="basket-item">
+            <div class="basket-icon">🍽️</div>
+            <div>
+              <div class="basket-name">Locavore To Go · Ubud lunch</div>
+              <div class="basket-sub">Day 3 · reservation 13:00 · 4.7★ Google · 1.4k reviews</div>
+            </div>
+            <div class="basket-price">$16</div>
+            <div class="basket-actions">
+              <div class="iconbtn">→</div>
+              <div class="iconbtn danger">✕</div>
+            </div>
+          </div>
+          <div class="basket-item">
+            <div class="basket-icon">🛥️</div>
+            <div>
+              <div class="basket-name">Nusa Penida private boat charter</div>
+              <div class="basket-sub">Day 4 · 6h · driver + snorkel gear · skip-the-group-tour pick</div>
+            </div>
+            <div class="basket-price">$72</div>
+            <div class="basket-actions">
+              <div class="iconbtn">→</div>
+              <div class="iconbtn danger">✕</div>
+            </div>
+          </div>
+          <div class="basket-item">
+            <div class="basket-icon">✈️</div>
+            <div>
+              <div class="basket-name">BLR → DPS · Singapore Airlines (alt)</div>
+              <div class="basket-sub">Direct flight · 8h 25m · fewer stops than primary pick</div>
+            </div>
+            <div class="basket-price">$284</div>
+            <div class="basket-actions">
+              <div class="iconbtn">→</div>
+              <div class="iconbtn danger">✕</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="basket-total">
+          <div>
+            <div class="lbl">Estimated total · 5 items</div>
+            <div class="val">$572</div>
+          </div>
+          <button class="btn btn-primary cta">Generate booking links →</button>
+        </div>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <!-- VIEW: Friends                                                 -->
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <section class="view" data-view="friends">
+        <div class="h1">Friends</div>
+        <div class="sub">Plan trips together · split costs · race each other through checkpoints.</div>
+
+        <div class="h2"><span class="ico">👥</span> Your crew <span class="h2-end">8 friends · 3 online</span></div>
+        <div class="friend-grid">
+          <div class="friend-card">
+            <div class="friend-head">
+              <div class="friend-av" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">PR<span class="online"></span></div>
+              <div>
+                <div class="friend-name">Priya Rao</div>
+                <div class="friend-handle">@priya.r · rank #1</div>
+              </div>
+            </div>
+            <div class="friend-last">Last trip: <b>Lisbon · 6 days</b> · planning Iceland next</div>
+            <div class="friend-actions">
+              <button class="btn btn-ghost" style="flex:1;">Message</button>
+              <button class="btn btn-primary" style="flex:1;">Plan together</button>
+            </div>
+          </div>
+          <div class="friend-card">
+            <div class="friend-head">
+              <div class="friend-av" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);">AK</div>
+              <div>
+                <div class="friend-name">Arjun Kapoor</div>
+                <div class="friend-handle">@arjun.k · rank #2</div>
+              </div>
+            </div>
+            <div class="friend-last">Last trip: <b>Spiti · 7 days</b> · 2 weeks ago</div>
+            <div class="friend-actions">
+              <button class="btn btn-ghost" style="flex:1;">Message</button>
+              <button class="btn btn-primary" style="flex:1;">Plan together</button>
+            </div>
+          </div>
+          <div class="friend-card">
+            <div class="friend-head">
+              <div class="friend-av" style="background:linear-gradient(135deg,#10b981,#06b6d4);">MS<span class="online"></span></div>
+              <div>
+                <div class="friend-name">Meera Shah</div>
+                <div class="friend-handle">@meera.s · rank #4</div>
+              </div>
+            </div>
+            <div class="friend-last">Last trip: <b>Pondicherry · 4 days</b> · last month</div>
+            <div class="friend-actions">
+              <button class="btn btn-ghost" style="flex:1;">Message</button>
+              <button class="btn btn-primary" style="flex:1;">Plan together</button>
+            </div>
+          </div>
+          <div class="friend-card">
+            <div class="friend-head">
+              <div class="friend-av" style="background:linear-gradient(135deg,#f59e0b,#ec4899);">RT</div>
+              <div>
+                <div class="friend-name">Rohan Tiwari</div>
+                <div class="friend-handle">@rohan.t · rank #5</div>
+              </div>
+            </div>
+            <div class="friend-last">Last trip: <b>Hampi · 3 days</b> · Mar 2026</div>
+            <div class="friend-actions">
+              <button class="btn btn-ghost" style="flex:1;">Message</button>
+              <button class="btn btn-primary" style="flex:1;">Plan together</button>
+            </div>
+          </div>
+          <div class="friend-card">
+            <div class="friend-head">
+              <div class="friend-av" style="background:linear-gradient(135deg,#8b5cf6,#3b82f6);">NV<span class="online"></span></div>
+              <div>
+                <div class="friend-name">Nikhil Verma</div>
+                <div class="friend-handle">@nikv · rank #7</div>
+              </div>
+            </div>
+            <div class="friend-last">Last trip: <b>Tokyo · 10 days</b> · last week</div>
+            <div class="friend-actions">
+              <button class="btn btn-ghost" style="flex:1;">Message</button>
+              <button class="btn btn-primary" style="flex:1;">Plan together</button>
+            </div>
+          </div>
+          <div class="friend-card">
+            <div class="friend-head">
+              <div class="friend-av" style="background:linear-gradient(135deg,#ec4899,#f59e0b);">DS</div>
+              <div>
+                <div class="friend-name">Diya Singh</div>
+                <div class="friend-handle">@diya · rank #9</div>
+              </div>
+            </div>
+            <div class="friend-last">Last trip: <b>Kerala backwaters · 5 days</b></div>
+            <div class="friend-actions">
+              <button class="btn btn-ghost" style="flex:1;">Message</button>
+              <button class="btn btn-primary" style="flex:1;">Plan together</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">📡</span> Activity</div>
+        <div class="activity-feed">
+          <div class="feed-item">
+            <div class="feed-av" style="background:linear-gradient(135deg,#f472b6,#a78bfa);">PR</div>
+            <div class="feed-text"><b>priya.r</b> unlocked <b>Lisbon · Day 6</b> ✦ — earned <b style="color:var(--gold);">+180 XP</b></div>
+            <div class="feed-time">2h ago</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-av" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);">AK</div>
+            <div class="feed-text"><b>arjun.k</b> started planning <b>Iceland · ring road · 9 days</b></div>
+            <div class="feed-time">5h ago</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-av" style="background:linear-gradient(135deg,#10b981,#06b6d4);">MS</div>
+            <div class="feed-text"><b>meera.s</b> earned the <b>"Hidden Gem Hunter"</b> badge for visiting 5 sub-50-review places</div>
+            <div class="feed-time">yesterday</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-av" style="background:linear-gradient(135deg,#8b5cf6,#3b82f6);">NV</div>
+            <div class="feed-text"><b>nikv</b> beat your <b>3-country streak</b> with their Tokyo trip</div>
+            <div class="feed-time">2d ago</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-av" style="background:linear-gradient(135deg,#f59e0b,#ec4899);">RT</div>
+            <div class="feed-text"><b>rohan.t</b> shared a 7-day Spiti itinerary template — saved <b>34</b> times</div>
+            <div class="feed-time">3d ago</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:24px;">
+          <div class="card-head"><div class="card-title">Invite friends</div><span class="card-tag">+50 XP each</span></div>
+          <div style="display:flex; gap:10px; margin-top:6px;">
+            <input class="input" value="https://tripster.app/i/sam-3xa9q" readonly />
+            <button class="btn btn-primary">Copy</button>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-mute); margin-top:8px;">When a friend joins via your link, you both get +50 XP and a Pro trial week.</div>
+        </div>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <!-- VIEW: Compete                                                 -->
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <section class="view" data-view="compete">
+        <div class="h1">Compete · <span class="grad">level up your travel</span></div>
+        <div class="sub">Trips become checkpoints, checkpoints become XP. Race your friends through real places.</div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Your rank</div>
+            <div class="stat-val">#3</div>
+            <div class="stat-foot up">↑ from #5 last month</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Total XP</div>
+            <div class="stat-val">2,140</div>
+            <div class="stat-foot up">↑ 320 this week</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Streak</div>
+            <div class="stat-val">12 d</div>
+            <div class="stat-foot">longest: 18 days</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Badges</div>
+            <div class="stat-val">7 / 24</div>
+            <div class="stat-foot">3 within reach</div>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">🏆</span> Friends leaderboard</div>
+        <div class="leaderboard">
+          <div class="lb-row">
+            <div class="lb-rank">1</div>
+            <div><div class="lb-name">priya.r 🥇</div><div class="lb-trips">9 trips · 4 countries · 32 day streak</div></div>
+            <div class="lb-trips">checkpoints <b style="color:var(--text);">142</b></div>
+            <div class="lb-xp">3,820 XP</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">2</div>
+            <div><div class="lb-name">arjun.k</div><div class="lb-trips">6 trips · 3 countries · 18 day streak</div></div>
+            <div class="lb-trips">checkpoints <b style="color:var(--text);">98</b></div>
+            <div class="lb-xp">2,460 XP</div>
+          </div>
+          <div class="lb-row me">
+            <div class="lb-rank">3</div>
+            <div><div class="lb-name">you (sam) ✦</div><div class="lb-trips">3 trips · 3 countries · 12 day streak</div></div>
+            <div class="lb-trips">checkpoints <b style="color:var(--text);">76</b></div>
+            <div class="lb-xp">2,140 XP</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">4</div>
+            <div><div class="lb-name">meera.s</div><div class="lb-trips">4 trips · 2 countries · 7 day streak</div></div>
+            <div class="lb-trips">checkpoints <b style="color:var(--text);">61</b></div>
+            <div class="lb-xp">1,720 XP</div>
+          </div>
+          <div class="lb-row">
+            <div class="lb-rank">5</div>
+            <div><div class="lb-name">rohan.t</div><div class="lb-trips">2 trips · 2 countries · 5 day streak</div></div>
+            <div class="lb-trips">checkpoints <b style="color:var(--text);">48</b></div>
+            <div class="lb-xp">1,180 XP</div>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">🎯</span> Active challenges</div>
+        <div class="challenges">
+          <div class="ch-item">
+            <div class="ch-head">
+              <span style="font-size:18px;">🌍</span>
+              <div class="ch-name">Visit 3 countries this year</div>
+              <span class="ch-reward">+500 XP</span>
+            </div>
+            <div class="ch-progress"><div class="bar" style="width:66%;"></div></div>
+            <div class="ch-meta"><span>2 of 3 · India + Thailand done</span><span>Bali in 7 days</span></div>
+          </div>
+          <div class="ch-item">
+            <div class="ch-head">
+              <span style="font-size:18px;">💰</span>
+              <div class="ch-name">Plan a sub-$500 trip</div>
+              <span class="ch-reward">+200 XP</span>
+            </div>
+            <div class="ch-progress"><div class="bar" style="width:100%;"></div></div>
+            <div class="ch-meta"><span>Bali $432 of $600 budget · pending booking</span><span>almost there</span></div>
+          </div>
+          <div class="ch-item">
+            <div class="ch-head">
+              <span style="font-size:18px;">📺</span>
+              <div class="ch-name">Visit 5 creator-recommended places</div>
+              <span class="ch-reward">+300 XP</span>
+            </div>
+            <div class="ch-progress"><div class="bar" style="width:40%;"></div></div>
+            <div class="ch-meta"><span>2 of 5 · Bali itinerary adds 4 more</span><span>complete on this trip</span></div>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">🎖️</span> Badges</div>
+        <div class="badges">
+          <div class="badge"><div class="ico">✈️</div><div class="name">First Flight</div><div class="desc">Booked your first flight</div></div>
+          <div class="badge"><div class="ico">🌏</div><div class="name">Border Crosser</div><div class="desc">2 countries in one year</div></div>
+          <div class="badge"><div class="ico">🍜</div><div class="name">Street Food Scholar</div><div class="desc">10 hawker meals</div></div>
+          <div class="badge"><div class="ico">📺</div><div class="name">Creator Trust</div><div class="desc">Verified 5 YouBuddy picks</div></div>
+          <div class="badge"><div class="ico">💎</div><div class="name">Hidden Gem</div><div class="desc">Visited a sub-50-review place</div></div>
+          <div class="badge"><div class="ico">🚲</div><div class="name">Scooter Squad</div><div class="desc">Rode local for 3 days</div></div>
+          <div class="badge"><div class="ico">📸</div><div class="name">Storyteller</div><div class="desc">Shared a trip recap</div></div>
+          <div class="badge locked"><div class="ico">🏔️</div><div class="name">Altitude</div><div class="desc">Trek above 4,500m</div></div>
+          <div class="badge locked"><div class="ico">🌊</div><div class="name">Ocean Diver</div><div class="desc">Complete an open-water dive</div></div>
+          <div class="badge locked"><div class="ico">🎒</div><div class="name">Backpacker</div><div class="desc">Sub-$30/day for 7 days</div></div>
+          <div class="badge locked"><div class="ico">🛂</div><div class="name">Continent Collector</div><div class="desc">3 continents in a year</div></div>
+          <div class="badge locked"><div class="ico">⚡</div><div class="name">Speed Planner</div><div class="desc">Plan + book a trip in &lt; 1 hour</div></div>
+        </div>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <!-- VIEW: Billing                                                 -->
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <section class="view" data-view="billing">
+        <div class="h1">Billing</div>
+        <div class="sub">Stripe-managed subscriptions. Affiliate links never charge you — partners pay us when you book.</div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-head">
+            <div class="card-title">Current plan</div>
+            <span class="pill violet">FREE</span>
+            <span class="card-tag" style="margin-left:auto;">2 of 3 trips this month</span>
+          </div>
+          <div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:11px; color:var(--text-mute); text-transform:uppercase; letter-spacing:.08em;">Renewal</div>
+              <div style="font-size:14px; font-weight:600; margin-top:4px;">No charges · Free tier</div>
+            </div>
+            <div style="height:38px; width:1px; background:var(--border);"></div>
+            <div>
+              <div style="font-size:11px; color:var(--text-mute); text-transform:uppercase; letter-spacing:.08em;">Usage this month</div>
+              <div style="font-size:14px; font-weight:600; margin-top:4px;">2 trips · 18 chat sessions · 12 affiliate clicks</div>
+            </div>
+            <button class="btn btn-primary" style="margin-left:auto;">Upgrade to Pro →</button>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">💎</span> Plans</div>
+        <div class="plans">
+          <div class="plan current">
+            <div class="plan-name">Free</div>
+            <div class="plan-price">$0<small>/mo</small></div>
+            <div class="plan-feat"><span class="check">✓</span><span>3 trips per month</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>YouBuddy research · 5 queries/day</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Standard hotel value-ranking</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Friends + Compete</span></div>
+            <button class="plan-cta ghost" disabled>Current plan</button>
+          </div>
+          <div class="plan featured">
+            <div class="plan-tag">MOST POPULAR</div>
+            <div class="plan-name">Pro</div>
+            <div class="plan-price">$9<small>/mo</small></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Unlimited trips</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Unlimited YouBuddy</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Priority research subgraph (3× faster)</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Save 100% of affiliate cashback</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Trip PDF + offline maps</span></div>
+            <button class="plan-cta primary">Upgrade to Pro</button>
+          </div>
+          <div class="plan">
+            <div class="plan-name">Premium</div>
+            <div class="plan-price">$24<small>/mo</small></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Everything in Pro</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Concierge sub-agent (24/7)</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Custom RAG corpus (your guides)</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>Group trips up to 12 people</span></div>
+            <div class="plan-feat"><span class="check">✓</span><span>API access</span></div>
+            <button class="plan-cta ghost">Go Premium</button>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">💳</span> Payment method</div>
+        <div class="card">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div style="width:46px; height:32px; border-radius:6px; background:linear-gradient(135deg,#1e3a8a,#3730a3); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px;">VISA</div>
+            <div>
+              <div style="font-weight:600; font-size:14px;">•••• •••• •••• 4242</div>
+              <div style="font-size:12px; color:var(--text-mute);">Expires 09/28 · added Mar 2026</div>
+            </div>
+            <button class="btn btn-ghost" style="margin-left:auto;">Update</button>
+            <button class="btn btn-ghost">+ Add method</button>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">📄</span> Invoices</div>
+        <table class="table">
+          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Mar 1, 2026</td><td>Free tier · usage report</td><td>$0.00</td><td><span class="pill gray">N/A</span></td><td><a class="mono" href="#">View →</a></td></tr>
+            <tr><td>Feb 1, 2026</td><td>Free tier · usage report</td><td>$0.00</td><td><span class="pill gray">N/A</span></td><td><a class="mono" href="#">View →</a></td></tr>
+            <tr><td>Jan 1, 2026</td><td>Free tier · usage report</td><td>$0.00</td><td><span class="pill gray">N/A</span></td><td><a class="mono" href="#">View →</a></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <!-- VIEW: Settings                                                -->
+      <!-- ════════════════════════════════════════════════════════════ -->
+      <section class="view" data-view="settings">
+        <div class="h1">Settings</div>
+        <div class="sub">Profile, notifications, connected accounts, and preferences.</div>
+
+        <div class="h2"><span class="ico">👤</span> Profile</div>
+        <div class="card">
+          <div class="settings-grid">
+            <div class="field-row">
+              <div>
+                <div class="field-label">Display name</div>
+                <div class="field-help">Shown to friends and on the leaderboard</div>
+              </div>
+              <input class="input" value="Sam Kumar" />
+            </div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Email</div>
+                <div class="field-help">Used for sign-in and trip confirmations</div>
+              </div>
+              <input class="input" value="samfrontiertoyota@gmail.com" />
+            </div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Username</div>
+                <div class="field-help">Friends find you with this</div>
+              </div>
+              <input class="input" value="@sam" />
+            </div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Home airport</div>
+                <div class="field-help">Defaults the origin slot in chat</div>
+              </div>
+              <select class="select">
+                <option>BLR · Bengaluru, India</option>
+                <option>DEL · Delhi, India</option>
+                <option>BOM · Mumbai, India</option>
+                <option>HYD · Hyderabad, India</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">🔔</span> Notifications</div>
+        <div class="card">
+          <div class="settings-grid">
+            <div class="field-row">
+              <div>
+                <div class="field-label">Email summaries</div>
+                <div class="field-help">Weekly recap of your trips and friends' activity</div>
+              </div>
+              <div class="toggle on" data-toggle></div>
+            </div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Price drop alerts</div>
+                <div class="field-help">When a flight or hotel in your basket drops &gt;10%</div>
+              </div>
+              <div class="toggle on" data-toggle></div>
+            </div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Friend activity</div>
+                <div class="field-help">When friends start trips or earn badges</div>
+              </div>
+              <div class="toggle" data-toggle></div>
+            </div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Marketing</div>
+                <div class="field-help">Product updates and new feature announcements</div>
+              </div>
+              <div class="toggle" data-toggle></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">🔌</span> Connected accounts</div>
+        <div class="card">
+          <div class="settings-grid">
+            <div class="field-row">
+              <div>
+                <div class="field-label">Google</div>
+                <div class="field-help">For sign-in · Calendar export · Maps integration</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px;"><span class="pill green">connected</span><button class="btn btn-ghost">Disconnect</button></div>
+            </div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Travelpayouts marker</div>
+                <div class="field-help">Earns you cashback on Pro plan</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px;"><span class="mono">tripster_a8c</span><button class="btn btn-ghost">Rotate</button></div>
+            </div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">YouBuddy (Vertex AI)</div>
+                <div class="field-help">Remote agent · drives the Discover feed</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px;"><span class="pill green">live</span><span class="mono">us-west1/517292</span></div>
+            </div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Apple / Spotify</div>
+                <div class="field-help">For trip soundtracks (coming soon)</div>
+              </div>
+              <button class="btn btn-ghost">Connect</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="h2"><span class="ico">⚙️</span> Preferences</div>
+        <div class="card">
+          <div class="settings-grid">
+            <div class="field-row">
+              <div><div class="field-label">Default currency</div><div class="field-help">Used for budget allocation</div></div>
+              <select class="select">
+                <option>USD · US Dollar</option><option>INR · Indian Rupee</option>
+                <option>EUR · Euro</option><option>GBP · British Pound</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <div><div class="field-label">Distance units</div><div class="field-help">For maps and travel times</div></div>
+              <select class="select"><option>Kilometers</option><option>Miles</option></select>
+            </div>
+            <div class="field-row">
+              <div><div class="field-label">Date format</div><div class="field-help">Across the dashboard</div></div>
+              <select class="select"><option>May 5, 2026</option><option>05/05/2026</option><option>2026-05-05</option></select>
+            </div>
+            <div class="field-row">
+              <div><div class="field-label">Theme</div><div class="field-help">Currently dark · light mode coming</div></div>
+              <select class="select" disabled><option>Dark (default)</option></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="danger-zone">
+          <div class="h">Danger zone</div>
+          <div class="desc">Export pulls your trips, friends, and chat history as a JSON archive. Account deletion removes everything except anonymized affiliate records (kept for accounting).</div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-ghost">Export my data</button>
+            <button class="btn-danger">Delete account</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ── Wire-up shared between index.html and dashboard ──────────────
+  // index.html stores the user's last prompt in localStorage when they
+  // hit "Plan my trip". The dashboard reads it and threads it into the
+  // greeting + trip title so the two pages feel like one app.
+
+  const TP_MARKER = 'tripster_a8c';   // mock affiliate marker
+
+  // ── Pull last-prompt context (if any) ──
+  try {
+    const lastPrompt = localStorage.getItem('tripster:lastPrompt');
+    if (lastPrompt) {
+      // crude parse — pull a destination-looking word for the greeting
+      const dest = (lastPrompt.match(/\b(Bali|Goa|Bangkok|Spiti|Maldives|Agra|Tokyo|Paris|Dubai)\b/i) || [])[0];
+      const days = (lastPrompt.match(/(\d+)\s*[- ]?\s*day/i) || [])[1];
+      const greet = document.getElementById('greet');
+      if (dest) {
+        greet.textContent = `Picking up where you left off — your ${dest} plan is 4 of 5 stages complete.`;
+        document.getElementById('crumb-trip').textContent = `${dest} · ${days || 5} days`;
+        document.getElementById('trip-title-grad').textContent = `${days || 5} days in ${dest}`;
+      }
+    }
+  } catch (e) {}
+
+  // ── Sidebar view switching ──
+  const VIEW_LABEL = {
+    trips:     ['My Trips',  'Bali · 5 days'],
+    discover:  ['Discover',  'YouBuddy + RAG'],
+    bookings:  ['Bookings',  '2 active · 5 past'],
+    basket:    ['Basket',    '5 saved'],
+    friends:   ['Friends',   '8 friends'],
+    compete:   ['Compete',   'rank #3'],
+    billing:   ['Billing',   'Free tier'],
+    settings:  ['Settings',  'profile · prefs'],
+  };
+  const crumbSection = document.getElementById('crumb-section');
+  const crumbTrip = document.getElementById('crumb-trip');
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
+    document.querySelectorAll('.side-link[data-tab]').forEach(el => el.classList.toggle('active', el.dataset.tab === name));
+    const [section, sub] = VIEW_LABEL[name] || [name, ''];
+    crumbSection.textContent = section;
+    crumbTrip.textContent = sub;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('.side-link[data-tab]').forEach(el => {
+    el.addEventListener('click', () => showView(el.dataset.tab));
+  });
+
+  // ── Bookings tab switching (active / past / cancelled) ──
+  document.querySelectorAll('[data-bk-tab]').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('[data-bk-tab]').forEach(x => x.classList.remove('on'));
+      t.classList.add('on');
+    });
+  });
+
+  // ── Settings toggles ──
+  document.querySelectorAll('[data-toggle]').forEach(t => {
+    t.addEventListener('click', () => t.classList.toggle('on'));
+  });
+
+  // ── Discover filter chips (visual only) ──
+  document.querySelectorAll('.fchip').forEach(c => {
+    c.addEventListener('click', () => {
+      c.parentElement.querySelectorAll('.fchip').forEach(x => x.classList.remove('on'));
+      c.classList.add('on');
+    });
+  });
+
+  // ── Open with hash route (#discover, #compete, etc.) ──
+  const initialView = (location.hash || '#trips').slice(1);
+  if (VIEW_LABEL[initialView]) showView(initialView);
+
+  // ── Day pill switching ──
+  const dayPlans = {
+    1: [
+      { t:'14:30', text:'Land at <b>DPS Ngurah Rai</b>', where:'arrivals · grab a SIM at Telkomsel kiosk' },
+      { t:'16:00', text:'Check-in at <b>The Akmani Legian</b>', where:'4 nights · Legian beach · pool' },
+      { t:'18:30', text:'Sunset at <b>Double Six Beach</b>', where:'5 min walk · vegan warungs nearby' },
+      { t:'20:00', text:'Dinner: <b>Warung Eny</b>', where:'$3 nasi campur · cash only · creator-recommended' }
+    ],
+    2: [
+      { t:'07:00', text:'Scooter pickup', where:'$6/day · helmets included' },
+      { t:'09:30', text:'<b>Uluwatu Temple</b> cliff walk', where:'mind the monkeys · entry $5' },
+      { t:'12:30', text:'Lunch at <b>Single Fin</b>', where:'cliff-edge surf bar' },
+      { t:'15:00', text:'<b>Padang Padang Beach</b>', where:'low tide is best · $1 entry' },
+      { t:'18:30', text:'<b>Kecak Fire Dance</b> at sunset', where:'book ahead · $10/pp' }
+    ],
+    3: [
+      { t:'08:00', text:'Drive to <b>Ubud</b>', where:'1.5h · stop at Tegallalang rice terraces' },
+      { t:'10:30', text:'<b>Sacred Monkey Forest</b>', where:'$4 entry · keep glasses tight' },
+      { t:'13:00', text:'Lunch at <b>Locavore To-Go</b>', where:'farm-to-table · $8/pp' },
+      { t:'15:30', text:'<b>Tirta Empul</b> water temple', where:'sarong required · purification ritual' },
+      { t:'19:00', text:'Return to Legian', where:'long but worth it' }
+    ],
+    4: [
+      { t:'06:30', text:'Sanur fast boat to <b>Nusa Penida</b>', where:'$25 round-trip · book private driver on arrival' },
+      { t:'09:00', text:'<b>Kelingking Beach</b> viewpoint', where:'before 9am to beat crowds · creator tip' },
+      { t:'11:30', text:'<b>Angel\'s Billabong</b> & <b>Broken Beach</b>', where:'2 stops · $5 entry' },
+      { t:'14:00', text:'Lunch + <b>Crystal Bay</b>', where:'snorkel rental $4' },
+      { t:'17:30', text:'Return ferry to Sanur', where:'taxi back to Legian · ~45 min' }
+    ],
+    5: [
+      { t:'09:00', text:'Final swim at <b>Legian Beach</b>', where:'last walk on the sand' },
+      { t:'11:00', text:'Check-out · cafe brunch at <b>Sisterfields</b>', where:'iconic brunch spot' },
+      { t:'13:00', text:'Souvenirs on <b>Jalan Legian</b>', where:'haggle 50% off the asking price' },
+      { t:'15:30', text:'Transfer to DPS', where:'45 min in traffic · leave buffer' },
+      { t:'19:10', text:'Depart <b>DPS → BLR</b>', where:'1 stop in KUL · arrive 21:55' }
+    ]
+  };
+  const dayList = document.getElementById('day-list');
+  function renderDay(n) {
+    dayList.innerHTML = dayPlans[n].map(it => `
+      <div class="day-item">
+        <div class="day-time">${it.t}</div>
+        <div class="day-text">${it.text}<span class="where">— ${it.where}</span></div>
+      </div>
+    `).join('');
+  }
+  document.querySelectorAll('.day-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.day-pill').forEach(x => x.classList.remove('on'));
+      p.classList.add('on');
+      renderDay(p.dataset.day);
+    });
+  });
+  renderDay(1);
+
+  // ── Hotel value-ranking (mock data, scored on 3 axes) ──
+  const hotels = [
+    {
+      name:"The Akmani Legian", area:"Legian · 0.4 km from beach",
+      stars:4.5, reviews:2142, price:48, top:true,
+      creator:0.86, visitor:0.89, price_fit:1.00, value:0.91,
+      rationale:"Endorsed by 3 creators (@nomad-emily, @indo-eats) · 89th-percentile Google rating across 2.1k reviews · price $48/night well under the $52/night lodging band · all 3 signals positive.",
+      thumb:"🏨"
+    },
+    {
+      name:"Frii Bali Echo Beach", area:"Canggu · 0.2 km from Echo Beach",
+      stars:4.3, reviews:1180, price:45, top:false,
+      creator:0.78, visitor:0.74, price_fit:1.00, value:0.83,
+      rationale:"Mentioned by @two-passports · solid 4.3★ across 1.2k reviews · price-fit perfect · 3-of-3 pass.",
+      thumb:"🌴"
+    },
+    {
+      name:"Jambuluwuk Oceano Seminyak", area:"Seminyak · beachfront",
+      stars:4.4, reviews:3420, price:62, top:false,
+      creator:0.42, visitor:0.91, price_fit:0.62, value:0.66,
+      rationale:"Strong visitor signal (3.4k reviews, 4.4★) but no creator mentions · price 19% over band · passes 2-of-3 gate on visitor + creator.",
+      thumb:"🌊"
+    },
+    {
+      name:"FuramaXclusive Ocean Beach", area:"Seminyak · 0.6 km from beach",
+      stars:4.2, reviews:890, price:54, top:false,
+      creator:0.0, visitor:0.71, price_fit:0.92, value:0.55,
+      rationale:"No creator mentions · decent visitor signal · close to budget · borderline 2-of-3 (visitor + price).",
+      thumb:"🏖️"
+    }
+  ];
+  const hotelEl = document.getElementById('hotels');
+  hotelEl.innerHTML = hotels.map(h => `
+    <div class="hotel ${h.top ? 'top' : ''}">
+      <div class="hotel-thumb">${h.thumb}</div>
+      <div class="hotel-info">
+        <div class="name">
+          ${h.name}
+          ${h.top ? '<span class="top-tag">⚡ TOP VALUE</span>' : ''}
+          <span class="value-badge">value ${h.value.toFixed(2)}</span>
+        </div>
+        <div class="place">${h.area} · <span class="stars">${'★'.repeat(Math.round(h.stars))}</span> ${h.stars} · ${h.reviews.toLocaleString()} reviews</div>
+        <div class="signal-bars">
+          <div class="sig">
+            <div class="sig-label"><span>creator</span><b>${h.creator.toFixed(2)}</b></div>
+            <div class="sig-track"><div class="sig-fill creator" style="width:${h.creator*100}%"></div></div>
+          </div>
+          <div class="sig">
+            <div class="sig-label"><span>visitor</span><b>${h.visitor.toFixed(2)}</b></div>
+            <div class="sig-track"><div class="sig-fill visitor" style="width:${h.visitor*100}%"></div></div>
+          </div>
+          <div class="sig">
+            <div class="sig-label"><span>price-fit</span><b>${h.price_fit.toFixed(2)}</b></div>
+            <div class="sig-track"><div class="sig-fill price" style="width:${h.price_fit*100}%"></div></div>
+          </div>
+        </div>
+        <div class="rationale">${h.rationale}</div>
+      </div>
+      <div class="hotel-price">
+        <div class="num">$${h.price}</div>
+        <div class="unit">per night</div>
+      </div>
+    </div>
+  `).join('');
+
+  // ── Affiliate deep-link generation (Travelpayouts) ──
+  function buildFlight() {
+    // Aviasales URL pattern: /search/{ORIGIN}{DDMM}{DEST}{DDMM_RETURN}{ADULTS}
+    const path = `/search/BLR0505DPS0905${2}`;
+    return `https://www.aviasales.com${path}?marker=${TP_MARKER}`;
+  }
+  function buildHotel() {
+    const params = new URLSearchParams({
+      hotelId: '4521892',
+      checkIn: '2026-05-05',
+      checkOut: '2026-05-09',
+      adults: '2',
+      marker: TP_MARKER
+    });
+    return `https://search.hotellook.com/hotels?${params.toString()}`;
+  }
+  document.getElementById('book-flight').href = buildFlight();
+  document.getElementById('book-hotel').href  = buildHotel();
+</script>
+</body>
+</html>

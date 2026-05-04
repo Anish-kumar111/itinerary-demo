@@ -1016,6 +1016,7 @@
       <a onclick="scrollTo({top:0, behavior:'smooth'})">Home</a>
       <a onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a onclick="document.querySelector('.features').scrollIntoView({behavior:'smooth'})">How it works</a>
+      <a href="dashboard.html">Dashboard</a>
       <button class="btn-ghost">Sign in</button>
     </div>
   </nav>
@@ -1696,6 +1697,11 @@
   async function startPlan() {
     const btn = document.getElementById('send-btn');
     btn.disabled = true;
+    try {
+      const prompt = document.getElementById('chat-input').value.trim();
+      if (prompt) localStorage.setItem('tripster:lastPrompt', prompt);
+      localStorage.setItem('tripster:lastPlannedAt', new Date().toISOString());
+    } catch (e) {}
     document.getElementById('plan').classList.add('active');
     document.getElementById('results').style.display = 'none';
     document.getElementById('thinking').style.display = '';
